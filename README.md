@@ -1,2 +1,4 @@
 # BetterDiscordPlugins
-Plugins and Libraries for BetterDiscord
+Plugins and Resources for BetterDiscord
+
+Join my Discord server at https://join-nebula.surge.sh.
