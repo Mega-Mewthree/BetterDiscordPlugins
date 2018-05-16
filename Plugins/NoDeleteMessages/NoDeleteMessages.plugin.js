@@ -33,47 +33,47 @@ SOFTWARE.
 // Updated May 15th, 2018.
 
 class NoDeleteMessages {
-	getName() {
-		return "NoDeleteMessages";
-	}
-	getShortName() {
-		return "NoDeleteMessages";
-	}
-	getDescription() {
-		return 'Prevents the client from removing deleted messages (until restart).\nUse ".message.NoDeleteMessages-deleted-message .markup" to edit the CSS of deleted messages.\n\nMy Discord server: https://join-nebula.surge.sh\nDM me @Lucario 🌌 V5.0.0#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
-	}
-	getVersion() {
-		return "0.0.2";
-	}
-	getAuthor() {
-		return "Mega_Mewthree"; //Current Discord account: @Lucario 🌌 V5.0.0#7902 (438469378418409483) Wonder how long this one will last...
-	}
-	constructor() {
+  getName() {
+    return "NoDeleteMessages";
+  }
+  getShortName() {
+    return "NoDeleteMessages";
+  }
+  getDescription() {
+    return 'Prevents the client from removing deleted messages (until restart).\nUse ".message.NoDeleteMessages-deleted-message .markup" to edit the CSS of deleted messages.\n\nMy Discord server: https://join-nebula.surge.sh\nDM me @Lucario 🌌 V5.0.0#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
+  }
+  getVersion() {
+    return "0.0.2";
+  }
+  getAuthor() {
+    return "Mega_Mewthree"; //Current Discord account: @Lucario 🌌 V5.0.0#7902 (438469378418409483) Wonder how long this one will last...
+  }
+  constructor() {
     this.deletedMessages = {};
   }
-	load() {}
-	unload() {}
-	start() {
+  load() {}
+  unload() {}
+  start() {
     let libraryScript = document.getElementById("zeresLibraryScript");
-		if (!window.ZeresLibrary || window.ZeresLibrary.isOutdated) {
-			if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
-			libraryScript = document.createElement("script");
-			libraryScript.setAttribute("type", "text/javascript");
-			libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
-			libraryScript.setAttribute("id", "zeresLibraryScript");
-			document.head.appendChild(libraryScript);
-		}
-		if (window.ZeresLibrary) this.initialize();
-		else libraryScript.addEventListener("load", () => { this.initialize(); });
-	}
-	initialize() {
+    if (!window.ZeresLibrary || window.ZeresLibrary.isOutdated) {
+      if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
+      libraryScript = document.createElement("script");
+      libraryScript.setAttribute("type", "text/javascript");
+      libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
+      libraryScript.setAttribute("id", "zeresLibraryScript");
+      document.head.appendChild(libraryScript);
+    }
+    if (window.ZeresLibrary) this.initialize();
+    else libraryScript.addEventListener("load", () => { this.initialize(); });
+  }
+  initialize() {
     window.updateDeletedMessages = () => this.updateDeletedMessages;
-		PluginUtilities.checkForUpdate(this.getName(), this.getVersion());
+    PluginUtilities.checkForUpdate(this.getName(), this.getVersion());
     BdApi.injectCSS("NoDeleteMessages-CSS", ".message.NoDeleteMessages-deleted-message .markup {color: #F00!important;}");
     InternalUtilities.WebpackModules.find(m => m.dispatch).setInterceptor(evt => this.filter(evt));
     PluginUtilities.showToast("NoDeleteMessages has started!");
-	}
-	stop() {
+  }
+  stop() {
     this.deletedMessages = {};
     this.filter = function () {return false;};
     BdApi.clearCSS("NoDeleteMessages-CSS");
@@ -130,13 +130,13 @@ class NoDeleteMessages {
 /*
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAlr7mVYACgkQf4qgY6Fc
-SQv01Af/Y0ldk4aJuONwVUdQ6BpCi7V3dykBJmqL4NJENs6J5II6ua0Zvmf1uX9z
-Rhfj6m75Ua4Ilk5jLaqQYN4dzq41u0JlqDQKvMF+zZPN+TPztXvEGuGcfxn6HTh9
-Xa6cRKxH/5pUELz/zQVJ0sys2Hxu5Yj4/s8iEDO39yFrILCzONXeqoi855/IhlFB
-NHDe6ORRnc6uTO0UYE3Yr7nOoDoRX2M3clExhOrl6Xno1iaqK8DiLxKS5X8jI/aA
-Op48kgTfnsfKYPzTEwtGc8d1R4WFm2WbcMYo8kQAE652Yd4tZnbvwgtRnSLSJqOo
-BXUEUtqm0Ul237XMU0mIqG3u4djoug==
-=aroZ
+iQEzBAEBCAAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAlr7o7gACgkQf4qgY6Fc
+SQsJ1gf9HQjy1muWKNTO+VEAVwAaSA03Z8yzoBLLTOmmqImSn/c9SFxHxeItXsWe
+SbG0dxpOZCdAPM982vIMIteEc7MQT6Q71HlnbpyuZpZ7l15b3Tr9eQBMsOyEQGw1
+rDCwsgR93ojxGyqzK2ZOG/2GOSyQA8Sq5lHxzLLQVmqvDag8ES6cGEmhcV/pvBdo
+YG8iqGFBZAC4bOKPHyCJhQMFkJn0M4EdXeFRhNuBGSz6qIHQMt0Ebt5UXTQAsHRK
+/cohmqcprCGbmb8gGpfDYF3aV251L+wADemr+Z1DGERygKTSnEr75ofLUzBaMETs
+1xRSWpvtj+qJdEaLYumP4KRUoIQlpg==
+=mQW3
 -----END PGP SIGNATURE-----
 */
