@@ -1,7 +1,5 @@
 //META{"name":"NoDeleteMessages","website":"https://github.com/Mega-Mewthree/BetterDiscordPlugins/Plugins/NoDeleteMessages","source":"https://github.com/Mega-Mewthree/BetterDiscordPlugins/Plugins/NoDeleteMessages/NoDeleteMessages.plugin.js"}*//
 
-/* global PluginUtilities:false */
-
 /*
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA256
@@ -32,7 +30,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Created May 13th, 2018.
+// Updated May 15th, 2018.
 
 class NoDeleteMessages {
 	getName() {
@@ -42,15 +40,17 @@ class NoDeleteMessages {
 		return "NoDeleteMessages";
 	}
 	getDescription() {
-		return "Prevents the client from removing deleted messages (until restart).\n\nMy Discord server: https://join-nebula.surge.sh\nDM me @Lucario 🌌 V5.0.0#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.\n\nDependencies:\n+ GatewayPatcher";
+		return 'Prevents the client from removing deleted messages (until restart).\nUse ".message.NoDeleteMessages-deleted-message .markup" to edit the CSS of deleted messages.\n\nMy Discord server: https://join-nebula.surge.sh\nDM me @Lucario 🌌 V5.0.0#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
 	}
 	getVersion() {
-		return "0.0.1";
+		return "0.0.2";
 	}
 	getAuthor() {
 		return "Mega_Mewthree"; //Current Discord account: @Lucario 🌌 V5.0.0#7902 (438469378418409483) Wonder how long this one will last...
 	}
-	constructor() {}
+	constructor() {
+    this.deletedMessages = {};
+  }
 	load() {}
 	unload() {}
 	start() {
@@ -67,87 +67,76 @@ class NoDeleteMessages {
 		else libraryScript.addEventListener("load", () => { this.initialize(); });
 	}
 	initialize() {
+    window.updateDeletedMessages = () => this.updateDeletedMessages;
 		PluginUtilities.checkForUpdate(this.getName(), this.getVersion());
-    if (Array.isArray(window.gatewayPacketFilters)) {
-      window.gatewayPacketFilters.unshift(this.gatewayFilter);
-    } else {
-      const app = require("electron").remote.app;
-      const path = require("path");
-      let bdsettings = require(path.normalize(`${this.getBetterDiscordPath()}/bdsettings.json`));
-      if (Object.keys(bdsettings.plugins).indexOf("GatewayPatcher") > -1) {
-        if (bdsettings.plugins.GatewayPatcher) {
-          window.gatewayPacketFilters = [this.gatewayFilter];
-        } else {
-          PluginUtilities.showToast("Please enable GatewayPatcher (a dependency) for NoDeleteMessages to function.", {type: "error"});
-        }
-      } else {
-        const fs = require("fs");
-        PluginUtilities.showToast("Installing GatewayPatcher (a dependency). Do not close Discord or your settings can break!", {type: "info"});
-        window.fetch("https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Resources/GatewayPatcher/GatewayPatcher.plugin.js")
-          .then(res => res.text())
-          .then(text => {
-            try {
-              fs.writeFileSync(
-                path.normalize(`${PluginUtilities.getPluginsFolder()}/GatewayPatcher.plugin.js`),
-                text,
-                {mode: 0o777}
-              );
-              bdsettings.plugins.GatewayPatcher = true;
-              fs.writeFileSync(
-                path.normalize(`${this.getBetterDiscordPath()}/bdsettings.json`),
-                JSON.stringify(bdsettings),
-                {mode: 0o777}
-              );
-              PluginUtilities.showToast("Successfully installed GatewayPatcher! Restarting...", {type: "success"});
-              this.restartDiscord();
-            } catch (e) {
-              PluginUtilities.showToast("An error occured while installing GatewayPatcher. If your client fails to load after restarting, please contact the author of this plugin.", {type: "error"});
-            }
-          });
-      }
-    }
+    BdApi.injectCSS("NoDeleteMessages-CSS", ".message.NoDeleteMessages-deleted-message .markup {color: #F00!important;}");
+    InternalUtilities.WebpackModules.find(m => m.dispatch).setInterceptor(evt => this.filter(evt));
+    PluginUtilities.showToast("NoDeleteMessages has started!");
 	}
 	stop() {
-    Array.isArray(window.gatewayPacketFilters) && window.gatewayPacketFilters.splice(window.gatewayPacketFilters.indexOf(this.gatewayFilter), 1);
+    this.deletedMessages = {};
+    this.filter = function () {return false;};
+    BdApi.clearCSS("NoDeleteMessages-CSS");
+    PluginUtilities.showToast("Please restart Discord for the plugin to be fully unloaded.", {type: "warn"});
   }
-
-  gatewayFilter(type, data) {
-    if (type === "MESSAGE_DELETE") type = "";
-    return [type, data];
-  }
-
-	restartDiscord() {
-		setTimeout(() => {
-			const app = require("electron").remote.app;
-			app.relaunch();
-			app.exit();
-		}, 3000);
-	}
-
-	getBetterDiscordPath() {
-    const process = require("process");
-    const path = require("path");
-    switch (process.platform) {
-        case "win32":
-        return path.resolve(process.env.appdata, "BetterDiscord/");
-        case "darwin":
-        return path.resolve(process.env.HOME, "Library/Preferences/", "BetterDiscord/");
-        default:
-        return path.resolve(process.env.HOME, ".config/", "BetterDiscord/");
+  filter(evt) {
+    if (evt.type === "MESSAGE_DELETE") {
+      if (Array.isArray(this.deletedMessages[evt.channelId])){
+        if (this.deletedMessages[evt.channelId].length > 149) this.deletedMessages[evt.channelId].shift(); // 150 because only 150 messages are stored per channel.
+        this.deletedMessages[evt.channelId].push(evt.id);
+      } else {
+        this.deletedMessages[evt.channelId] = [evt.id];
+      }
+      if (evt.channelId === this.getCurrentChannelID()) this.updateDeletedMessages();
+      return true;
+    } else if (evt.type === "MESSAGE_DELETE_BULK") {
+      if (Array.isArray(this.deletedMessages[evt.channelId])){
+        if (this.deletedMessages[evt.channelId].length + evt.ids.length > 149) this.deletedMessages[evt.channelId].splice(0, this.deletedMessages[evt.channelId].length + evt.ids.length - 150);
+        this.deletedMessages[evt.channelId].push(...evt.ids);
+      } else {
+        this.deletedMessages[evt.channelId] = [...evt.ids];
+      }
+      if (evt.channelId === this.getCurrentChannelID()) this.updateDeletedMessages();
+      return true;
     }
-	}
+    return false;
+  }
+  observer({addedNodes}) {
+    let len = addedNodes.length;
+    let change;
+    while (len--){
+      change = addedNodes[len];
+      if (change.classList && change.classList.contains("messages-wrapper")) {
+        this.updateDeletedMessages();
+        break;
+      }
+    }
+  }
+  updateDeletedMessages() {
+    const currentChannel = this.getCurrentChannelID();
+    const channelDeletedMessages = this.deletedMessages[this.getCurrentChannelID()];
+    if (!channelDeletedMessages) return;
+    $(".message").each((index, elem) => {
+      if (channelDeletedMessages.includes(elem[Object.keys(elem).find(k => k.startsWith("__reactInternalInstance"))].return.key)) {
+        elem.classList.add("NoDeleteMessages-deleted-message");
+      }
+    });
+  }
+  getCurrentChannelID() {
+    return DiscordModules.SelectedChannelStore.getChannelId();
+  }
 }
 
 /*
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAlr4sAQACgkQf4qgY6Fc
-SQs9rQf/S+KXXVgv8y26AOTk110d+2tv+J5hCNqlM9wwnVbQ06pQ641SJZNwnzCV
-G5tSBLexFP5WOHMNxe9tCG21h5GcDmUApZa9NA74LJnrid78UEth6/fj1vKrmDpR
-F1n8OGP2L9+jZfQx+TzBKUrEYx1fOaiQ6Bz5sQGk98ukp7aPC8QHfMC4Q7E9Scem
-QWPEDpwWtCs94tY7RotFTM7E5ZyK+yjVdd2viFtWxtkCT1bCgXQyYP1dPsnvQP3Y
-agxvTCynB8BrdPa6S/AgmF/dJrFx4HMWAn8vyUWJ3G8bcNjHfgBOa/Um7Z5FXVPq
-i688/APQGCZ4QbQxt+5sAHMP67tUtQ==
-=ALyg
+iQEzBAEBCAAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAlr7mVYACgkQf4qgY6Fc
+SQv01Af/Y0ldk4aJuONwVUdQ6BpCi7V3dykBJmqL4NJENs6J5II6ua0Zvmf1uX9z
+Rhfj6m75Ua4Ilk5jLaqQYN4dzq41u0JlqDQKvMF+zZPN+TPztXvEGuGcfxn6HTh9
+Xa6cRKxH/5pUELz/zQVJ0sys2Hxu5Yj4/s8iEDO39yFrILCzONXeqoi855/IhlFB
+NHDe6ORRnc6uTO0UYE3Yr7nOoDoRX2M3clExhOrl6Xno1iaqK8DiLxKS5X8jI/aA
+Op48kgTfnsfKYPzTEwtGc8d1R4WFm2WbcMYo8kQAE652Yd4tZnbvwgtRnSLSJqOo
+BXUEUtqm0Ul237XMU0mIqG3u4djoug==
+=aroZ
 -----END PGP SIGNATURE-----
 */
