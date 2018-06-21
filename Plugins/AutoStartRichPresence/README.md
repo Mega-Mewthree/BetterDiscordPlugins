@@ -4,7 +4,7 @@ Automatically starts a custom Rich Presence application when you start Discord.
 
 Setup Tutorial: https://www.youtube.com/watch?v=JIUOreTNj-o
 
-![Example](https://cdn.discordapp.com/attachments/444699521398865943/459431938508455947/unknown.png)
+![Example](https://cdn.discordapp.com/attachments/444699521398865943/459432393598566420/unknown.png)
 
 My Discord server: https://nebula.mooo.info/discord-invite
 
