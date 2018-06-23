@@ -1,6 +1,6 @@
 # DiscordCakeDay
 
-Displays a cake next to the username of anyone whose account is having a Discord birthday!
+Displays a cake next to the username of anyone whose account is having a Discord birthday! (Currently only displays in chat.)
 
 ![Example](https://cdn.discordapp.com/attachments/444699521398865943/459947759777087499/unknown.png)
 
