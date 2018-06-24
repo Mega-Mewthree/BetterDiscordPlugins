@@ -1,4 +1,5 @@
-//META{"name":"AutoStartRichPresence","website":"https://github.com/Mega-Mewthree/BetterDiscordPlugins/Plugins/AutoStartRichPresence","source":"https://github.com/Mega-Mewthree/BetterDiscordPlugins/Plugins/AutoStartRichPresence/AutoStartRichPresence.plugin.js"}*//
+//META{"name":"AutoStartRichPresence","website":"https://github.com/Mega-Mewthree/BetterDiscordPlugins/tree/master/Plugins/AutoStartRichPresence","source":"https://github.com/Mega-Mewthree/BetterDiscordPlugins/blob/master/Plugins/AutoStartRichPresence/AutoStartRichPresence.plugin.js"}*//
+
 /*
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA256
@@ -28,7 +29,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Updated June 19th, 2018.
+// Updated June 24th, 2018.
 
 let RPClient;
 
@@ -3626,31 +3627,6 @@ let RPClient;
   	}
   })();
 
-  const argv = require("minimist")(process.argv.slice(2), {
-  	string: [
-  		"clientID",
-  		"details",
-  		"state",
-  		"largeImageKey",
-  		"smallImageKey",
-  		"largeImageText",
-  		"smallImageText"
-  	],
-  	boolean: [
-  		"timestampStartNow"
-  	]
-  });
-
-  const clientID = argv.clientID;
-  const details = argv.details;
-  const state = argv.state;
-  const largeImageKey = argv.largeImageKey;
-  const smallImageKey = argv.smallImageKey;
-  const largeImageText = argv.largeImageText;
-  const smallImageText = argv.smallImageText;
-  const startTimestamp = argv.timestampStartNow ? Date.now() / 1000 : argv.startTimestamp;
-  const endTimestamp = argv.endTimestamp;
-
   // https://github.com/devsnek/discord-rich-presence
   function makeClient(id) {
   	const rpc = new RPCClient({
@@ -3718,7 +3694,7 @@ class AutoStartRichPresence {
     return 'Auto starts Rich Presence with configurable settings.\n\nMy Discord server: https://nebula.mooo.info/discord-invite\nDM me @Lucario 🌌 V5.0.0#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
   }
   getVersion() {
-    return "0.0.1";
+    return "0.0.2";
   }
   getAuthor() {
     return "Mega_Mewthree"; //Current Discord account: @Lucario 🌌 V5.0.0#7902 (438469378418409483)
@@ -3812,26 +3788,29 @@ class AutoStartRichPresence {
       new PluginSettings.Textbox("Details", "The line that goes after your game's name.", this.settings.details || "", "", val => {this.settings.details = val;}),
       new PluginSettings.Textbox("State", "The line that goes after the details.", this.settings.state || "", "", val => {this.settings.state = val;}),
       new PluginSettings.Textbox("Large Image Key", "The name of the asset for your large image.", this.settings.largeImageKey || "", "", val => {this.settings.largeImageKey = val;}),
-      new PluginSettings.Textbox("Small Image Key", "The name of the asset for your small image.", this.settings.smallImageKey || "", "", val => {this.settings.smallImageKey = val;}),
       new PluginSettings.Textbox("Large Image Text", "The text that appears when your large image is hovered over.", this.settings.largeImageText || "", "", val => {this.settings.largeImageText = val;}),
+      new PluginSettings.Textbox("Small Image Key", "The name of the asset for your small image.", this.settings.smallImageKey || "", "", val => {this.settings.smallImageKey = val;}),
       new PluginSettings.Textbox("Small Image Text", "The text that appears when your small image is hovered over.", this.settings.smallImageText || "", "", val => {this.settings.smallImageText = val;}),
       new PluginSettings.PillButton("Enable Start Time", "Displays the amount of time your Rich Presence is enabled.", "", "", this.settings.enableStartTime, val => {this.settings.enableStartTime = val;})
 		);
-    const div = document.createElement("div");
-    div.innerHTML = '<a href="https://www.youtube.com/watch?v=JIUOreTNj-o" rel="noreferrer noopener" target="_blank">Click here for a video tutorial of how to set up this plugin.</a>';
+    let div = document.createElement("div");
+    div.innerHTML = '<a href="https://discordapp.com/developers/applications/me" rel="noreferrer noopener" target="_blank">Create or edit your Discord Rich Presence application here!</a>';
+    panel[0].appendChild(div);
+    div = document.createElement("div");
+    div.innerHTML = '<a href="https://www.youtube.com/watch?v=JIUOreTNj-o" rel="noreferrer noopener" target="_blank">Click here for a video tutorial of how to set up this plugin!</a>';
     panel[0].appendChild(div);
   }
 }
 /*
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAlsp5gAACgkQf4qgY6Fc
-SQvLcAf+ML+PmgEEcUJObDfYh6N+JpdzSvKsj1v5e2Jp0gLXyCCEUwOuzbjPkJPG
-ebJDyrskhrmeMn6zVLCbQMf+XYEnh5oNLpmKFTDo1zpZf6WIfVjwes5aj5hEa9bV
-7jtHMuUmw1l0/FVZrcwnf+G1JkOKYgceSKifMOCSIMqN/m9HqPPLxIx+b54lHOYW
-ioNo/R5rUnubHLZrezV/fI42IiUlsfpIx8BMnfyw1u/lxG60VU90fmIarjtEM1xj
-2J4zjaLFqRT0zRAgEw0LiXrRoEnIJf14AeNeJXeFMwmLWZdYQUTavvUM5K1vsN79
-/+LdSt8gD2SN/aRuxC8rac77hnSo8w==
-=YXO1
+iQEzBAEBCAAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAlsvwf0ACgkQf4qgY6Fc
+SQvPZQgAilsVkrWSHm4AvxdThFCrICx4G+AtekIHMJ6iUH3TlXJiIrvttYuTKXT8
+AwSkHBcBJAPODdU/v8QJTqQWtc5NJytw/NnIBOP8AyHt8yMGl7GwPpGC4vg0IfBR
+Kv9k8ucXDpsUuy64XPOxSYHKZJwiubEusnJqcNCt0kplO7uVsClgfSA6wCQ9D6Tw
+F0TwiF5i4BMboqOTeAUGHElMx2E+AqmKuxoIRVwPa2+izcxNgmegM/Ij/foT3Jz7
+9rYyv/0qIy1GVJUjro9F86n75GqImbv4hZIQh3RzUsTH7MLDcoy79tLwwNx7khRf
+vb5Pk0lH4BB6escLM8+8FCWYRmelHg==
+=6CbM
 -----END PGP SIGNATURE-----
 */
