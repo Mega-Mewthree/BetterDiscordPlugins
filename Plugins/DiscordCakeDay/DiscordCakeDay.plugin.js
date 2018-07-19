@@ -30,7 +30,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Updated June 22nd, 2018.
+// Updated July 19th, 2018.
 
 class DiscordCakeDay {
   getName() {
@@ -40,10 +40,10 @@ class DiscordCakeDay {
     return "DiscordCakeDay";
   }
   getDescription() {
-    return 'Displays a cake next to the username of anyone whose account is having a Discord birthday! (Currently only displays in chat.)\n\nMy Discord server: https://nebula.mooo.info/discord-invite\nDM me @Lucario 🌌 V5.0.0#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
+    return 'Displays a cake next to the username of anyone whose account is having a Discord birthday! (Currently only displays in chat and member list.)\nRequires "Normalize Classes" to be enabled in Zere\'s Fork settings.\n\nCSS Selectors:\n  \u2022 discord-cake-day-message: A message-group that contains a cake.\n  \u2022 discord-cake-day-message-cake: A cake inside a message.\n  \u2022 discord-cake-day-member: A member in the member list that has a cake.\n  \u2022 discord-cake-day-member-cake: A cake in the member list.\n\nMy Discord server: https://nebula.mooo.info/discord-invite\nDM me @Lucario 🌌 V5.0.0#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
   }
   getVersion() {
-    return "0.0.2";
+    return "0.1.0";
   }
   getAuthor() {
     return "Mega_Mewthree"; //Current Discord account: @Lucario 🌌 V5.0.0#7902 (438469378418409483)
@@ -69,7 +69,7 @@ class DiscordCakeDay {
   }
   initialize() {
     PluginUtilities.checkForUpdate(this.getName(), this.getVersion());
-    BdApi.injectCSS("DiscordCakeDay-CSS", `.discord-cake-day-message {display: inline-block; height: 16px; width: 16px; margin-left: 6px; vertical-align: middle; background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAADH0lEQVRYw+2WTUycVRSGn3Pu5eMbJghSqT8sqjbtwnSjiUbSxJgmtli70Oh0ogmVuKldGN24MMaFGzcu0E50ZxxhYUpNdQH+Ld0qmlCMqa1aQEQLM8wMA8zP993rAqVkLIoRJ5rw7m7uzXnfe857Tg7sYAf/VRwbOMuxgbObnptG/tCTIy8fPXHm7sb77YJcixyQ0WzKHz1x5tMwkXwgdo7q6nJdVV8XOD02lJ7Z+H40m9oeAQ3k54LW5CO9hw5yiy0zOe+YufA9S6UcURTNqkjGeTf40fDjtX8iRjYhf9sGyYGTT/e5wyMvKh+M4J95nuHbn2DifI56tUwhP09xMYf3/ktRyYy9k842fmYrYuQa5G8FQfhU35Fel3q0W4PHjmMnv6La9zB+8FXee/9nvr60hDGKiFAuFcjnrlAuFUH4RJDM2FB6rNEvm4mRBvI3wzA81XPrHZw8voeuDotLCnjAg67CT/MVsuemCFp0LYAIImuJLCwusJhfYLm8hKoOA5kPh9Kf/1lW7AbyN8IwPLV3/wEq1Yi5hQo33tBOfQW8BxEIAsgXa6hctY73Hu89AB2du+js6sbFEfmF+f5CYaH/wf536yKaETg9mk1NNYqR31rtlTCReGHvvgM4FwNQqzsO3dvN/tvaubnbcHm2xvhkgYkLRYIWxf9VXUUwaqhUVijk1zITx9GciGSAwdFsqvJ7CZ51zr3Wfl2nExHdGCiOPfXY4WKwRrBWUJW/3WgiYIylVMwTRREAqnoRuMt654507dpNoq1Nvd9KQL/VkfIHJNraAEFVmZud2hfHcY/1+MgGCVoTneu1/LehxgLTgHe2VnccPribe+7cQ+xcUwQkE5bnXjpPqeqxKsKVXJVL08u4JgkIW1twHlTAWitMfFvkhzmDpzklMGqIYo9RwQKoCMaA99IcAUbW7Wy9h2TCcH1HQJM8iLVmvWdstebou+8m7u/tIY6bIyAZQnp8nJVVh20NlI8/+4UvvomamoFq3dFiFSsgq1VPqeybZ0JzdeBaNcb9OP0dM1MXm7dwejDWoqq1bd/x/neb9w528CtJD20wscn0EwAAAABJRU5ErkJggg=='); background-size: 16px;} discord-cake-day-message::after {content: "Discord Cake Day!"}`);
+    BdApi.injectCSS("DiscordCakeDay-CSS", `.discord-cake-day-message-cake, .discord-cake-day-member-cake {display: inline-block; height: 16px; width: 16px; margin-left: 6px; vertical-align: middle; background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAADH0lEQVRYw+2WTUycVRSGn3Pu5eMbJghSqT8sqjbtwnSjiUbSxJgmtli70Oh0ogmVuKldGN24MMaFGzcu0E50ZxxhYUpNdQH+Ld0qmlCMqa1aQEQLM8wMA8zP993rAqVkLIoRJ5rw7m7uzXnfe857Tg7sYAf/VRwbOMuxgbObnptG/tCTIy8fPXHm7sb77YJcixyQ0WzKHz1x5tMwkXwgdo7q6nJdVV8XOD02lJ7Z+H40m9oeAQ3k54LW5CO9hw5yiy0zOe+YufA9S6UcURTNqkjGeTf40fDjtX8iRjYhf9sGyYGTT/e5wyMvKh+M4J95nuHbn2DifI56tUwhP09xMYf3/ktRyYy9k842fmYrYuQa5G8FQfhU35Fel3q0W4PHjmMnv6La9zB+8FXee/9nvr60hDGKiFAuFcjnrlAuFUH4RJDM2FB6rNEvm4mRBvI3wzA81XPrHZw8voeuDotLCnjAg67CT/MVsuemCFp0LYAIImuJLCwusJhfYLm8hKoOA5kPh9Kf/1lW7AbyN8IwPLV3/wEq1Yi5hQo33tBOfQW8BxEIAsgXa6hctY73Hu89AB2du+js6sbFEfmF+f5CYaH/wf536yKaETg9mk1NNYqR31rtlTCReGHvvgM4FwNQqzsO3dvN/tvaubnbcHm2xvhkgYkLRYIWxf9VXUUwaqhUVijk1zITx9GciGSAwdFsqvJ7CZ51zr3Wfl2nExHdGCiOPfXY4WKwRrBWUJW/3WgiYIylVMwTRREAqnoRuMt654507dpNoq1Nvd9KQL/VkfIHJNraAEFVmZud2hfHcY/1+MgGCVoTneu1/LehxgLTgHe2VnccPribe+7cQ+xcUwQkE5bnXjpPqeqxKsKVXJVL08u4JgkIW1twHlTAWitMfFvkhzmDpzklMGqIYo9RwQKoCMaA99IcAUbW7Wy9h2TCcH1HQJM8iLVmvWdstebou+8m7u/tIY6bIyAZQnp8nJVVh20NlI8/+4UvvomamoFq3dFiFSsgq1VPqeybZ0JzdeBaNcb9OP0dM1MXm7dwejDWoqq1bd/x/neb9w528CtJD20wscn0EwAAAABJRU5ErkJggg=='); background-size: 16px;} discord-cake-day-message::after {content: "Discord Cake Day!"}`);
     PluginUtilities.showToast("DiscordCakeDay has started!");
   }
   observer({addedNodes}) {
@@ -98,8 +98,9 @@ class DiscordCakeDay {
             if (birthday === dayNow && birthmonth === monthNow && birthyear !== yearNow) {
               const target = change.children[1].children[0].children[0].children[0];
               const span = document.createElement("span");
-              span.classList.add("discord-cake-day-message");
+              span.classList.add("discord-cake-day-message-cake");
               target.insertBefore(span, target.children[0].nextSibling);
+              change.classList.add("discord-cake-day-message");
             }
             continue;
           } catch (e) {}
@@ -107,6 +108,29 @@ class DiscordCakeDay {
         if (change.classList.contains("messages-wrapper")) {
           this.updateAllMessages();
           break;
+        }
+        if (change.classList.contains("da-member")) {
+          try {
+            const userNode = change.children[0].children[1];
+            if (!userNode.classList.contains("da-memberInner")) continue;
+            const userID = userNode[Object.keys(userNode).find(k => k.startsWith("__reactInternalInstance"))].child.memoizedProps.user.id;
+            const userBirthday = new Date(parseInt(parseInt(userID).toString(2).padStart(64, "0").slice(0, 42), 2) + 1420070400000);
+            let birthday = userBirthday.getDate();
+            let birthmonth = userBirthday.getMonth();
+            let birthyear = userBirthday.getFullYear();
+            if (birthmonth === 1 && birthday === 29 && new Date(yearNow, 1, 29).getDate() !== 29) {
+              // Birthday is on leap day, current year does not have leap day
+              birthday = 28;
+            }
+            if (birthday === dayNow && birthmonth === monthNow && birthyear !== yearNow) {
+              const target = change.children[0].children[1].children[0];
+              const span = document.createElement("span");
+              span.classList.add("discord-cake-day-member-cake");
+              target.insertBefore(span, target.children[0].nextSibling);
+              change.classList.add("discord-cake-day-member");
+            }
+            continue;
+          } catch (e) {}
         }
       }
     }
@@ -132,8 +156,9 @@ class DiscordCakeDay {
         if (birthday === dayNow && birthmonth === monthNow && birthyear !== yearNow) {
           const target = elem.children[1].children[0].children[0].children[0];
           const span = document.createElement("span");
-          span.classList.add("discord-cake-day-message");
+          span.classList.add("discord-cake-day-message-cake");
           target.insertBefore(span, target.children[0].nextSibling);
+          elem.classList.add("discord-cake-day-message");
         }
       } catch (e) {}
     });
@@ -143,13 +168,13 @@ class DiscordCakeDay {
 /*
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAlst6nkACgkQf4qgY6Fc
-SQuMaQf/eIwL4MaOjCX87CjrK0Jr+ivnwzUSOyjumKcFGnLDluEZsExmM9P9Tvuj
-gpAGUM2UCYgfls6jyqyRfHWxiwF518ByNsSjoQ+bfiMo7jaqqFyaxSThKbVdfYWM
-MUXM95wWok3DT0mvoMpTMm0kDobhGaOBGgyUCA6tNK2yVV+0xjxl+jbyO6MErgon
-g82P9eJNbuCwSxqyfFEZ54ddA52+BqiRh4JAvy+ho96n7xV7nxR8+Ldi0uRglOep
-erHk96l8FkFGRQ7NFfIQL+C37VojWM1wKb+/gdH/SHnP91+YP1i/yFrRwDd6fGDh
-oJdHWFSmI27NYM3CGcYfJ74G6a9Dlw==
-=JDYU
+iQEzBAEBCAAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAltQO/cACgkQf4qgY6Fc
+SQvp+AgAjOa6oCWtD+MSZAHD3o7Pi5eH5fjlqRaWeM1a+gtHAPMNyqxGlMhmrfbe
+unZlvTPAOsTOuCSQ6t9lBsggdEua6+YIP1/Ppl7EglXNk3f7gs8gsKvHZgD14aWC
+skW8+3Z1ZxHCJi8JhHDuHfVD42pByZKKxIUCBPtA62vexPKTujI1bNdNIHGxzvoC
+YykDIp6Il9PvUIuoDGK5WKiUrkaGKzsMpkPCs1mmERtWqoYLYmuThgwmpmnsme7P
+m5MIjYOi+yk3/ewURpiKvUnSHNThEgYGgy2AmzF0oJa52z+BsOulJrvOsMLeyXfb
+UsoH8gFTBo21L1yZ2ri7HV62oFS0cA==
+=RWZl
 -----END PGP SIGNATURE-----
 */
