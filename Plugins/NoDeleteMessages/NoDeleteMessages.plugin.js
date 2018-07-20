@@ -30,7 +30,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Updated June 1st, 2018.
+// Updated July 20th, 2018.
 
 class NoDeleteMessages {
   getName() {
@@ -43,7 +43,7 @@ class NoDeleteMessages {
     return 'Prevents the client from removing deleted messages (until restart).\nUse ".message.NoDeleteMessages-deleted-message .markup" to edit the CSS of deleted messages.\n\nMy Discord server: https://join-nebula.surge.sh\nDM me @Lucario 🌌 V5.0.0#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
   }
   getVersion() {
-    return "0.0.3";
+    return "0.0.4";
   }
   getAuthor() {
     return "Mega_Mewthree"; //Current Discord account: @Lucario 🌌 V5.0.0#7902 (438469378418409483) Wonder how long this one will last...
@@ -120,7 +120,7 @@ class NoDeleteMessages {
     let maybeAMessageID;
     $(".message").each((index, elem) => {
       maybeAMessageID = elem[Object.keys(elem).find(k => k.startsWith("__reactInternalInstance"))].return;
-      if (channelDeletedMessages.includes(maybeAMessageID.return.key) || channelDeletedMessages.includes(maybeAMessageID.key)) {
+      if (channelDeletedMessages.includes(maybeAMessageID.return.return.key) || channelDeletedMessages.includes(maybeAMessageID.return.return.key) || channelDeletedMessages.includes(maybeAMessageID.return.key) || channelDeletedMessages.includes(maybeAMessageID.key)) {
         elem.classList.add("NoDeleteMessages-deleted-message");
       }
     });
@@ -133,13 +133,13 @@ class NoDeleteMessages {
 /*
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAlsSBR8ACgkQf4qgY6Fc
-SQvE5wgA1dl0hjuJKmYdK7+Vwj/30HGD+tVpvspp2o1Kaqa45+Bg/5Vwb5B3dvwA
-Ggc2N2/XvHx2C93NIiu5EYKAq12obZeX8XrvXFI48WGvCeDSh54Czjv+K6dkuY3k
-I4QdE5XlZLRx5sYgRzK1UzA1FSbQWy1EJCf2ZtFgfWIC/t8f06v/GgwMCnEIaIWC
-e3zZR9cUweAL8UeYKpBUKAGOnNIFFzAqeRsZsAlUg/bHqDfvkVICw6bNug+DqLPN
-+pjuyz8GA+iCfpmSv4FWHE/j4xjL4xuGGpl6BjKr3A//faoo4XDJa5Ue0jO58k/C
-HzTcvhU65OZ6n5g0g2TWbNYhL1ZtRQ==
-=2cfa
+iQEzBAEBCAAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAltRkKMACgkQf4qgY6Fc
+SQtx9QgAkfqNnpJQ2zuLXdVQfT1Hne4tDS4Z0NGPm4l9hAw1ZAZ1RMLmly2IhzTI
+uJvH2w3mqlo9TUPdjtrxYw7f6CKksbsgkQD5bup5DPgeApTY8Kba9iCS0XIPwyhR
+hMkFu3a5vInmRmirJnitbcDAFswci6PcvC3KX2Dn5eHHlZ0t7NpNlsvSDLyXwcFW
+BVlEC36cPStKNTjgVunHmXxsXS0OZpQEUy+PnaMIHl5JNA9lxBjJxfCrOeQBvLqg
+khTHC1lyljLlB/jIJ0RGydwpBGMo1eGcJKTaZ+akibxc6x7fZ5U3hQY0Wi2rW2mB
+ytCMusQZd6/z5jcYfQMdYhgVz0AX3w==
+=hCvI
 -----END PGP SIGNATURE-----
 */
