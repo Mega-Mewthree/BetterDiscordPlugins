@@ -1,0 +1,38 @@
+[
+  {
+    "name": "AlwaysMentionEveryone",
+    "type": "plugin",
+    "src": "Plugins/AlwaysMentionEveryone",
+    "version": "0.0.1",
+    "authors": [
+      "Mega_Mewthree"
+    ]
+  },
+  {
+    "name": "AutoStartRichPresence",
+    "type": "plugin",
+    "src": "Plugins/AutoStartRichPresence",
+    "version": "0.0.2",
+    "authors": [
+      "Mega_Mewthree"
+    ]
+  },
+  {
+    "name": "DiscordCakeDay",
+    "type": "plugin",
+    "src": "Plugins/DiscordCakeDay",
+    "version": "0.1.0",
+    "authors": [
+      "Mega_Mewthree"
+    ]
+  },
+  {
+    "name": "NoDeleteMessages",
+    "type": "plugin",
+    "src": "Plugins/NoDeleteMessages",
+    "version": "0.0.4",
+    "authors": [
+      "Mega_Mewthree"
+    ]
+  }
+]
