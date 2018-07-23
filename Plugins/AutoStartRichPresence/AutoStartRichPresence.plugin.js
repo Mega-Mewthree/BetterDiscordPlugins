@@ -29,7 +29,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Updated June 24th, 2018.
+// Updated July 23rd, 2018.
 
 let RPClient;
 
@@ -3694,7 +3694,7 @@ class AutoStartRichPresence {
     return 'Auto starts Rich Presence with configurable settings.\n\nMy Discord server: https://nebula.mooo.info/discord-invite\nDM me @Lucario 🌌 V5.0.0#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
   }
   getVersion() {
-    return "0.0.2";
+    return "0.0.3";
   }
   getAuthor() {
     return "Mega_Mewthree"; //Current Discord account: @Lucario 🌌 V5.0.0#7902 (438469378418409483)
@@ -3719,7 +3719,7 @@ class AutoStartRichPresence {
     else libraryScript.addEventListener("load", () => { this.initialize(); });
   }
   initialize() {
-    PluginUtilities.checkForUpdate(this.getName(), this.getVersion());
+    PluginUtilities.checkForUpdate(this.getName(), this.getVersion(), `https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Plugins/${this.getName()}/${this.getName()}.plugin.js`);
     PluginUtilities.showToast("AutoStartRichPresence has started!");
     this.startTime = Date.now();
     this.startRichPresence();
@@ -3804,13 +3804,13 @@ class AutoStartRichPresence {
 /*
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAlsvwf0ACgkQf4qgY6Fc
-SQvPZQgAilsVkrWSHm4AvxdThFCrICx4G+AtekIHMJ6iUH3TlXJiIrvttYuTKXT8
-AwSkHBcBJAPODdU/v8QJTqQWtc5NJytw/NnIBOP8AyHt8yMGl7GwPpGC4vg0IfBR
-Kv9k8ucXDpsUuy64XPOxSYHKZJwiubEusnJqcNCt0kplO7uVsClgfSA6wCQ9D6Tw
-F0TwiF5i4BMboqOTeAUGHElMx2E+AqmKuxoIRVwPa2+izcxNgmegM/Ij/foT3Jz7
-9rYyv/0qIy1GVJUjro9F86n75GqImbv4hZIQh3RzUsTH7MLDcoy79tLwwNx7khRf
-vb5Pk0lH4BB6escLM8+8FCWYRmelHg==
-=6CbM
+iQEzBAEBCAAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAltWAU4ACgkQf4qgY6Fc
+SQuWNwf/c0JPtBwPrUYB+tw4jzeQD5xTVZNZZ6WAVQUWlGcKcb+a9NEmwJ1DvqF+
+RU8rcdpxEbtI1Q3/I5K2x11TErfO0nfwpEhGLYypYgs1oYtR7WNCMkiEq33+peJE
+YoGjh029xzvtWNjLtN3yH8Q6AQMglIxU7OJrMgixqiD7c34lAg7twxh1QgKltFkz
+5DQVQl2y/zQOC6/xfm12S6HxxyM2/qkDBVtgJxwN5M0SKLFmV0eTh6w2pyi5ZqhN
+4cPAY/b/O/WcQE8w3qUdzqGRJXk9uk6tlP5/EH7H1AvmeKZEk4puPcEcEe2S5iLy
+DEiHy8vdlJSe/mkVrZoWcFAenvtiKA==
+=8Gbc
 -----END PGP SIGNATURE-----
 */
