@@ -43,7 +43,7 @@ class AlwaysMentionEveryone {
     return 'Discord will no longer confirm if you want to mention everyone in large servers.\nRequires "Normalize Classes" to be enabled in Zere\'s Fork settings.\n\nMy Discord server: https://join-nebula.surge.sh\nDM me @Lucario 🌌 V5.0.0#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
   }
   getVersion() {
-    return "0.0.1";
+    return "0.0.2";
   }
   getAuthor() {
     return "Mega_Mewthree"; //Current Discord account: @Lucario 🌌 V5.0.0#7902 (438469378418409483) Wonder how long this one will last...
@@ -69,7 +69,7 @@ class AlwaysMentionEveryone {
     });
   }
   initialize() {
-    PluginUtilities.checkForUpdate(this.getName(), this.getVersion());
+    PluginUtilities.checkForUpdate(this.getName(), this.getVersion(), `https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Plugins/${this.getName()}/${this.getName()}.plugin.js`);
     PluginUtilities.showToast("AlwaysMentionEveryone has started!");
   }
   stop() {
@@ -94,13 +94,13 @@ class AlwaysMentionEveryone {
 /*
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAltRfsEACgkQf4qgY6Fc
-SQsDbwgAuWrxJ8k5dFi+e+26iS2Gf1+BF3rqKBRbsjOLFFlG6hrqYPBx0BIUjkXn
-PH1VztUwF8ibSAhIOl2FYGKQBOYrYIcsIMov9QARcC81ZDqYZ6HOIpfs00OROvtz
-eLqPtF4XdaB1uEMZT9N3OmjXQLZMNcmR4z9idUf4VOc/W8k75rBCxWo4Oy+MB2LW
-LDoLkSAvpuaNRdsifPikyDNtbj9NcQ+qRmAVqkwTbmKbPxGDc8Fai0Ui5WwSfqKp
-gV3gR8KcjkyV2rVp7DanitPSQffJ/x2CxmYh8Vf+EvYIPGsKLos+6MKDVEm9ZUr/
-VTImRJ9VvYPjEIbzGBfZFhmEYZge8A==
-=nbz3
+iQEzBAEBCAAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAltV/woACgkQf4qgY6Fc
+SQvt/wf+LPlxV6XmujY4Gj9HfAGP/jb6SOHLJZVBGNwjm+YGZ1E19rJjsGkj1Zs9
+HyEbgG+OTT/bGNcthG26JPDjRoc8wn/l1Bkr6/00sEqor6eH+1EjFwrNSHnY7JEN
+nbCUt4SIJqbw3YG5tAkCitKoirABVIU67lReQilJHva8wzGKDdmHhaqKyslz+q2d
+bnVFESvBkVcvAKmN5Mkutov9d5Bnj5HSCEP8Jsx4ZTFmIUzBgxcSaDR7/414aD7I
+CP5fFppvUjcNFC1F/9sLeSCZg8II4mrl54R6ZscomVhjtnjfOoswe6OhqEJ8UaAa
+UPDDUdNFDpaDbzyrbNBou0t25iwi3g==
+=O0lo
 -----END PGP SIGNATURE-----
 */
