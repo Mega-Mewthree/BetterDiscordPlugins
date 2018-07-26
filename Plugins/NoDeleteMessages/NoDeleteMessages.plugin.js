@@ -30,7 +30,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Updated July 23rd, 2018.
+// Updated July 25th, 2018.
 
 class NoDeleteMessages {
   getName() {
@@ -43,7 +43,7 @@ class NoDeleteMessages {
     return 'Prevents the client from removing deleted messages (until restart).\nUse ".message.NoDeleteMessages-deleted-message .markup" to edit the CSS of deleted messages.\n\nMy Discord server: https://join-nebula.surge.sh\nDM me @Lucario 🌌 V5.0.0#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
   }
   getVersion() {
-    return "0.0.5";
+    return "0.0.6";
   }
   getAuthor() {
     return "Mega_Mewthree"; //Current Discord account: @Lucario 🌌 V5.0.0#7902 (438469378418409483) Wonder how long this one will last...
@@ -69,7 +69,7 @@ class NoDeleteMessages {
   initialize() {
     window.updateDeletedMessages = () => this.updateDeletedMessages;
     PluginUtilities.checkForUpdate(this.getName(), this.getVersion(), `https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Plugins/${this.getName()}/${this.getName()}.plugin.js`);
-    BdApi.injectCSS("NoDeleteMessages-CSS", ".message.NoDeleteMessages-deleted-message .markup {color: #F00!important;}");
+    BdApi.injectCSS("NoDeleteMessages-CSS", ".da-message.NoDeleteMessages-deleted-message .da-markup {color: #F00!important;}");
     Patcher.instead(this.getName(), InternalUtilities.WebpackModules.find(m => m.dispatch), "dispatch", (thisObject, args, originalFunction) => {
       let shouldFilter = this.filter(args[0]);
       if (!shouldFilter) return originalFunction(...args);
@@ -118,11 +118,13 @@ class NoDeleteMessages {
     const channelDeletedMessages = this.deletedMessages[this.getCurrentChannelID()];
     if (!channelDeletedMessages) return;
     let maybeAMessageID;
-    $(".message").each((index, elem) => {
-      maybeAMessageID = elem[Object.keys(elem).find(k => k.startsWith("__reactInternalInstance"))].return;
-      if (channelDeletedMessages.includes(maybeAMessageID.return.return.key) || channelDeletedMessages.includes(maybeAMessageID.return.return.key) || channelDeletedMessages.includes(maybeAMessageID.return.key) || channelDeletedMessages.includes(maybeAMessageID.key)) {
-        elem.classList.add("NoDeleteMessages-deleted-message");
-      }
+    $(".da-message").each((index, elem) => {
+      try {
+        maybeAMessageID = elem[Object.keys(elem).find(k => k.startsWith("__reactInternalInstance"))].return;
+        if (channelDeletedMessages.includes(maybeAMessageID.return.return.key) || channelDeletedMessages.includes(maybeAMessageID.return.return.key) || channelDeletedMessages.includes(maybeAMessageID.return.key) || channelDeletedMessages.includes(maybeAMessageID.key)) {
+          elem.classList.add("NoDeleteMessages-deleted-message");
+        }
+      } catch (e) {}
     });
   }
   getCurrentChannelID() {
@@ -133,13 +135,13 @@ class NoDeleteMessages {
 /*
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAltWBI4ACgkQf4qgY6Fc
-SQuibAgAlhv/jqMGbJKaw5w8IkKxjGK1jgUILxbk90RW5Bc6NuKJiIE70xRS53Di
-ZGWflqF66NAwYv5jHxmnRH/mQZTtWxW8wXvixMuzFyqYSQrOEr4I8S5hzCj6i9cA
-ajOk/t4g3HsEDssRDb/+lDDCMe3ATG8Z7P7tk3OE+fxQGuOUtbiBLymnVLA1odQi
-rMBrD8/NcQxvQL62rfgiXuUnFoYYrrlppjngRhAF/l9F94jxXP4ZIXl0/fLPd/Th
-SBc92PmGhA5U6/rdnL/3sRGR+Upvk7LqP9I886fmFqH1OnHLmML3Qgn+UCsfbYmR
-7u2eHkzuxep6dNyCONWzaHQQdXg2wA==
-=Q6hl
+iQEzBAEBCAAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAltZP0IACgkQf4qgY6Fc
+SQuWrAf/f3ti/cuGS11j5xCcUe2c94FKQmblI3cPI9szp0oUNT9gitSZWgTfmSLD
+HT/SwF/8PtWZSbx5SLa4x7a96YHTdMYR3SweVsOtCguDfs5LWyTWb2Axc55+/0lF
+uGEZpHvb1VRTvlJcZMn8OiOzw/K0oKeqTtrmJDWTcQk5C4+ZwA71Pq2qbdnc/YYz
+NE1q9G9PqtOJdcHk09O/17QouXJBfUMcmbAdRddIZkQUt4r9R5ksDbbAnAXVrH5e
+agqReA0LmloYJpY0WyKCZ5VJ3ZBrx9uCivo4IWv2KeR7fVswv/laVu+/UPfjck01
+kbMk9KYgfFJDP2BsgbSHzumXek6RHg==
+=EUqG
 -----END PGP SIGNATURE-----
 */
