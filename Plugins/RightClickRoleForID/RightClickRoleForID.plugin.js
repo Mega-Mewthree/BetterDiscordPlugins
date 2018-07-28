@@ -30,7 +30,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Created July 28th, 2018.
+// Updated July 28th, 2018.
 
 class RightClickRoleForID {
   getName() {
@@ -43,7 +43,7 @@ class RightClickRoleForID {
     return 'Right-clicking a role in role menus or member popups will copy the role ID to your clipboard.\n\nMy Discord server: https://nebula.mooo.info/discord-invite\nDM me @Lucario 🌌 V5.0.0#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
   }
   getVersion() {
-    return "0.0.1";
+    return "0.0.2";
   }
   getAuthor() {
     return "Mega_Mewthree"; //Current Discord account: @Lucario 🌌 V5.0.0#7902 (438469378418409483)
@@ -78,7 +78,6 @@ class RightClickRoleForID {
     while (len--){
       change = addedNodes[len];
       if (typeof change.className === "string") {
-        console.log(change.className);
         if (
           change.className.indexOf("flex-") > -1 &&
           change.className.indexOf("horizontal-") > -1 &&
@@ -118,9 +117,7 @@ class RightClickRoleForID {
           } catch (e) {}
         } else if (
           change.className.indexOf("noArrow-") > -1 &&
-          change.className.indexOf("noShadow-") > -1 &&
-          change.className.indexOf("popout-") > -1 &&
-          change.className.indexOf("popoutLeft-") > -1
+          change.className.indexOf("popout-") > -1
         ) {
           try {
             const roleHolder = change.children[0].children[1].children[1];
@@ -145,13 +142,13 @@ class RightClickRoleForID {
 /*
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAltcHmIACgkQf4qgY6Fc
-SQvNNgf+Lkk9DXiprU96Bv1yQpZ8UUGNWJhpcByTLha06+XVDBI7U347iBZpWdm0
-0jx7LdFCctt6Gxf12ngy0GGPLOgnGu3ibNvImpOtzswu027fh1UKjtqZ3KQwbSDp
-6gJbsk9E5XJl+MqtthD4KaqHK6S95J7bj8XnSwi4S74uVbkclrSI5Oez4RD7osRT
-TiIdpf+cR4c4fi7L64OIBrDfo1H5pN3bUabHHFE3A1OlCPl4gfcSOojw1u1nCJU+
-QbUB5HQ6REuqlPcbxVNj36tz6bxcRwvSelrGfiitNpfHKIcL+sWQif+0MsJMdknC
-0SlkXQhc8wFkybAmeZTnPmCFLGhOEw==
-=/q7s
+iQEzBAEBCAAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAltcyP4ACgkQf4qgY6Fc
+SQtaUggAsSfG+iv1hv8BTu8+O7KlbGMrV6HM5+YuSrHjvw7w6fiDXW9z68a/8vnq
+mlSbg8nRct/sa1502Vg4ZumEy7snA2FTX8w+2Ou4aJVvP0dmjrK7SETgo+P+KW8f
+bXEo+4ljO4zbbSnhPztoQYQDer+J1KsJV0yHr8zOoUrV+44b6J+I4mYw/W+lJiaq
+yXTM/DL36wCywh50yFFNbMXQjQOMIAbMwc7Ghd5l+4rCcJOww6RkhXzuICoihl/6
+Dief2NRg085lAXgrO/APK+5JmyhYXk4/JDqVuDDGizB0sK9EM08bdeFJVZ6jQNod
+kH3U/9iWzNvdtgtK8FopQ1OqUSYwxw==
+=MqMQ
 -----END PGP SIGNATURE-----
 */
