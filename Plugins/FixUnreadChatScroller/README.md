@@ -1,6 +1,6 @@
 # FixUnreadChatScroller
 
-Fixes channels not getting marked as read upon scrolling to the bottom of the chat.
+Fixes channels not getting marked as read upon scrolling to the bottom of the chat when using custom themes.
 
 My Discord server: https://nebula.mooo.info/discord-invite
 
