@@ -30,7 +30,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Updated July 25th, 2018.
+// Updated August 3rd, 2018.
 
 class DiscordCakeDay {
   getName() {
@@ -43,7 +43,7 @@ class DiscordCakeDay {
     return 'Displays a cake next to the username of anyone whose account is having a Discord birthday! (Currently only displays in chat and member list.)\nRequires "Normalize Classes" to be enabled in Zere\'s Fork settings.\n\nCSS Selectors:\n  \u2022 discord-cake-day-message: A message-group that contains a cake.\n  \u2022 discord-cake-day-message-cake: A cake inside a message.\n  \u2022 discord-cake-day-member: A member in the member list that has a cake.\n  \u2022 discord-cake-day-member-cake: A cake in the member list.\n\nMy Discord server: https://nebula.mooo.info/discord-invite\nDM me @Lucario 🌌 V5.0.0#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
   }
   getVersion() {
-    return "0.1.2";
+    return "0.1.3";
   }
   getAuthor() {
     return "Mega_Mewthree"; //Current Discord account: @Lucario 🌌 V5.0.0#7902 (438469378418409483)
@@ -105,7 +105,7 @@ class DiscordCakeDay {
             continue;
           } catch (e) {}
         }
-        if (change.classList.contains("messages-wrapper")) {
+        if (change.classList.contains("da-messagesWrapper")) {
           this.updateAllMessages();
           break;
         }
@@ -168,13 +168,13 @@ class DiscordCakeDay {
 /*
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAltZPosACgkQf4qgY6Fc
-SQsa8gf+OqTeIM/W2Eh0X3oTb979UMnVLV/EOeYsZVhGm2ry472TWxV27M9tFP6j
-Ll6nIDwRU40lenR2FY8BaLlbd0lK0Q4EysDkwIoO4vVNMsVX8tCDGeGLaFUBFyAF
-er+OTfXrVvBpIVLcuGHXBkO/yVfPUW6UESH+6jyKdegSUs8Nk8wjeS1d14Ev8dW3
-2wKPhv254IvYTGmphZU/6LQhCybep7eUdiU3sTLV334Js5DDeXb8I2P43EPJWqK0
-VajwWXZXCs0m8BjybjbOHvH59cy6S7f+2extZze1v+KneqfYL66IJUaT4TUQUZOB
-2RGjFie27J0Mop/RJ1Wr1aT/BSDQtA==
-=qKMg
+iQEzBAEBCAAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAltlLfwACgkQf4qgY6Fc
+SQuG4wf/e2rBH5uglCOhMnLXbh1dvk4/NX/OGum2o/c8rAvOscIcLOH8YdN5Kpx2
+mZOmdqYhQayv8q2KC5IPJjl2qBR7SdPb1KCJJy2mP39ulvNsq6ETNOoFzEZ+JpuJ
+H1ifSAL5FcmYgkemA412702GU8DPEyRDQ93q5lX9wQo1KrmZXeModbI53hOI+1T0
+Un1hMhZQlaaZVAWDwdY0VldObakGn9UtT7Ao7PSrjEQa5kgkIfXe4BAt6UbtGGKf
+M/7FVcmz//CQu0SQ/TCsn+YAJWqadgGR/L7CbQc960EcdyjZHq7UNjwWK28R5356
+j4KgBWfkz3U/oq3ul7M6xxeLt1wRBg==
+=i6HJ
 -----END PGP SIGNATURE-----
 */
