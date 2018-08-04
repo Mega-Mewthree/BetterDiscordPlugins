@@ -31,6 +31,7 @@ SOFTWARE.
 */
 
 // Created July 28th, 2018.
+// Updated August 3rd, 2018.
 
 class FixUnreadChatScroller {
   getName() {
@@ -43,7 +44,7 @@ class FixUnreadChatScroller {
     return 'Fixes channels not getting marked as read upon scrolling to the bottom.\n\nMy Discord server: https://nebula.mooo.info/discord-invite\nDM me @Lucario 🌌 V5.0.0#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
   }
   getVersion() {
-    return "0.0.1";
+    return "0.0.2";
   }
   getAuthor() {
     return "Mega_Mewthree"; //Current Discord account: @Lucario 🌌 V5.0.0#7902 (438469378418409483)
@@ -77,8 +78,8 @@ class FixUnreadChatScroller {
     let change;
     while (len--){
       change = addedNodes[len];
-      if (change.classList && change.classList.contains("messages-wrapper")) {
-        const scroller = document.querySelector(".messages.scroller");
+      if (change.classList && change.classList.contains("messagesWrapper-3lZDfY")) {
+        const scroller = document.querySelector(".messages-3amgkR.scroller");
         try {
           scroller.onscroll = () => {
             if (!this.active) return;
@@ -96,13 +97,13 @@ class FixUnreadChatScroller {
 /*
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAltc08AACgkQf4qgY6Fc
-SQundwgAykBnyNU2cyrk1sPAhEDgcu2vyHtbrdhT7cPj2ZykCpx+ImGWrUTawiVK
-0XpHmNKPEEU5F9JnI4vidjuPBskMFXv3HYNSUb+aD7sZ76lzC3/azZiyCFkAAyH0
-Ufo//Rt83TQvfmKowURPVYNH1sE7mPm49R/4JybOajyZCjmPaapXsCT4+x1+ChIU
-bojBtzsOW7vIlSAk4480yEcxmnZo8nln29gm29ukUC4Aw9a7KK7M/ozGu6i8/Mmh
-I4Wi0ngM03xbpCmqFuy8eQ42CeQUrkjrcwzTWiK8fmDNBq6c7A9Qm4GTzKmLLRA5
-ifIlTUKvjnM9sMR7/31B9FI2VI68hQ==
-=04OM
+iQEzBAEBCAAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAltlLD0ACgkQf4qgY6Fc
+SQsXKAf7BAA/lLHwWVlBIhzwz+CQicxt2cM6fiG/q5a7oXCIdqH6vAghmr9keC72
+JM9IdJySti8E1GC/cTFc3mzLRghXw+hUW1XjG/f85+UTD4WrH5xT5Vpqd4J6JyKT
+VIUB7vlU+vY4/ICkPFn9ki6XQsFwcWYoaD8TVVfoDM8At0PQFBhYcNrihzFx6UkJ
+8lphP9uG4YMOoxxYHi3JO3Ot/pk+Vl/7OxEWUMQ9ArUqT7200/lytg3aqJJEmZKd
+GG8lpdxscKHWlmL8VLa2g8kRxxf7GkeJr0oQbHuDQP0Q5JxXpwD6ERI1aX4CVT3H
+KL9pfDnbYnrl9g4/MgBLj+BeEWTy8A==
+=lBDv
 -----END PGP SIGNATURE-----
 */
