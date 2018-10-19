@@ -3535,11 +3535,15 @@ let RPClient;
   					end: args.endTimestamp,
   				};
   				if (timestamps.start instanceof Date) {
-  					timestamps.start = Math.round(timestamps.start.getTime() / 1000);
-  				}
+  					timestamps.start = parseInt(timestamps.start.getTime());
+  				} else if (typeof timestamps.start === 'number') {
+            timestamps.start = parseInt(timestamps.start)
+          }
   				if (timestamps.end instanceof Date) {
-  					timestamps.end = Math.round(timestamps.end.getTime() / 1000);
-  				}
+  					timestamps.end = parseInt(timestamps.end.getTime());
+  				} else if (typeof timestamps.end === 'number') {
+            timestamps.end = parseInt(timestamps.end.getTime());
+          }
   			}
   			if (
   				args.largeImageKey || args.largeImageText ||
