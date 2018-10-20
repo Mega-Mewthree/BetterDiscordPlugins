@@ -29,7 +29,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Updated July 23rd, 2018.
+// Updated October 19th, 2018.
 
 let RPClient;
 
@@ -3698,7 +3698,7 @@ class AutoStartRichPresence {
     return 'Auto starts Rich Presence with configurable settings.\n\nMy Discord server: https://nebula.mooo.info/discord-invite\nDM me @Lucario 🌌 V5.0.0#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
   }
   getVersion() {
-    return "0.0.3";
+    return "0.0.4";
   }
   getAuthor() {
     return "Mega_Mewthree"; //Current Discord account: @Lucario 🌌 V5.0.0#7902 (438469378418409483)
@@ -3808,13 +3808,13 @@ class AutoStartRichPresence {
 /*
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAltWAU4ACgkQf4qgY6Fc
-SQuWNwf/c0JPtBwPrUYB+tw4jzeQD5xTVZNZZ6WAVQUWlGcKcb+a9NEmwJ1DvqF+
-RU8rcdpxEbtI1Q3/I5K2x11TErfO0nfwpEhGLYypYgs1oYtR7WNCMkiEq33+peJE
-YoGjh029xzvtWNjLtN3yH8Q6AQMglIxU7OJrMgixqiD7c34lAg7twxh1QgKltFkz
-5DQVQl2y/zQOC6/xfm12S6HxxyM2/qkDBVtgJxwN5M0SKLFmV0eTh6w2pyi5ZqhN
-4cPAY/b/O/WcQE8w3qUdzqGRJXk9uk6tlP5/EH7H1AvmeKZEk4puPcEcEe2S5iLy
-DEiHy8vdlJSe/mkVrZoWcFAenvtiKA==
-=8Gbc
+iQEzBAEBCAAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAlvKw+gACgkQf4qgY6Fc
+SQsj+wf/ZkjFrHgdZ2YGmcpWQP1IauPFS+yyQTltYGlcx1RyTIZJGmFKRmXCXIda
+DV4/UN10kugjg4L2RR6q42mBRrslsnoARkvZD558aGanls6Au9ZGik7jUxqcqBPE
+6jUvjse4ie4z5ULfOD4RxJ/mW1a86HSSndkzApcixS0FKEjL+Ln0RIxbm2xY/guj
+lP+xbKS6CjtFgwKr28mxJ0ztw8UG2Zad6/71rUwtpY0+EqwosIys/9M4i6ovaJcV
+ZhlO8hVH3sKBEfdd6DzTSxklqjNtD3/CPlP5KXIkN/RdR2ANlKNVLEE6qUMZLdZh
+AnrkSqETSTGMv97/nHyDHwaj/UvJMA==
+=MLST
 -----END PGP SIGNATURE-----
 */
