@@ -2,13 +2,13 @@
 
 /*
 -----BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA256
+Hash: SHA512
 
 */
 /*
 MIT License
 
-Copyright (c) 2018 Mega_Mewthree
+Copyright (c) 2018-2019 Mega_Mewthree
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -29,14 +29,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Updated October 19th, 2018.
+// Updated January 15th, 2019.
 
 let RPClient;
 
 (() => {
   const path = require("path");
   const fs = require("fs");
-  const EventEmitter = require('events');
+  const EventEmitter = require("events");
 
   // snekfetch library
   let snekfetch;
@@ -3695,13 +3695,13 @@ class AutoStartRichPresence {
     return "AutoStartRichPresence";
   }
   getDescription() {
-    return 'Auto starts Rich Presence with configurable settings.\n\nMy Discord server: https://nebula.mooo.info/discord-invite\nDM me @Lucario 🌌 V5.0.0#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
+    return "Auto starts Rich Presence with configurable settings.\nRequired dependency: ZeresPluginLibrary\n\nMy Discord server: https://nebula.mooo.info/discord-invite\nDM me @Lucario ☉ ∝ x²#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.";
   }
   getVersion() {
-    return "0.0.4";
+    return "1.0.0";
   }
   getAuthor() {
-    return "Mega_Mewthree"; //Current Discord account: @Lucario 🌌 V5.0.0#7902 (438469378418409483)
+    return "Mega_Mewthree"; //Current Discord account: @Lucario ☉ ∝ x²#7902 (438469378418409483)
   }
   constructor() {
     this.initialized = false;
@@ -3710,21 +3710,21 @@ class AutoStartRichPresence {
   load() {}
   unload() {}
   start() {
-    let libraryScript = document.getElementById("zeresLibraryScript");
-    if (!window.ZeresLibrary || window.ZeresLibrary.isOutdated) {
-      if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
-      libraryScript = document.createElement("script");
-      libraryScript.setAttribute("type", "text/javascript");
-      libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
-      libraryScript.setAttribute("id", "zeresLibraryScript");
-      document.head.appendChild(libraryScript);
+    if (typeof window.ZeresPluginLibrary === "undefined") {
+      BdApi.showToast('AutoStartRichPresence: Please install "ZeresPluginLibrary" and restart this plugin.', {type: "error"});
+    } else {
+      this.initialize();
     }
-    if (window.ZeresLibrary) this.initialize();
-    else libraryScript.addEventListener("load", () => { this.initialize(); });
   }
   initialize() {
-    PluginUtilities.checkForUpdate(this.getName(), this.getVersion(), `https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Plugins/${this.getName()}/${this.getName()}.plugin.js`);
-    PluginUtilities.showToast("AutoStartRichPresence has started!");
+    if (window.ZeresPluginLibrary.PluginUtilities && typeof window.ZeresPluginLibrary.PluginUtilities.checkForUpdate === "function") {
+      try {
+        window.ZeresPluginLibrary.PluginUtilities.checkForUpdate(this.getName(), this.getVersion(), `https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Plugins/${this.getName()}/${this.getName()}.plugin.js`);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    BdApi.showToast("AutoStartRichPresence has started!");
     this.startTime = Date.now();
     this.startRichPresence();
     this.initialized = true;
@@ -3732,11 +3732,11 @@ class AutoStartRichPresence {
   async stop() {
     this.client && typeof this.client.disconnect === "function" && await this.client.disconnect();
     this.initialized = false;
-    PluginUtilities.showToast("AutoStartRichPresence has stopped!");
+    BdApi.showToast("AutoStartRichPresence has stopped!");
   }
   getSettingsPanel() {
     if (!this.initialized) return;
-    this.settings = PluginUtilities.loadSettings("AutoStartRichPresence");
+    this.settings = BdApi.loadData("AutoStartRichPresence", "settings");
     const panel = $("<form>").addClass("form").css("width", "100%");
 		if (this.initialized) this.generateSettings(panel);
 		return panel[0];
@@ -3745,17 +3745,17 @@ class AutoStartRichPresence {
     this.currentTimeout && clearTimeout(this.currentTimeout);
     this.currentTimeout = setTimeout(async () => {
       this.client && typeof this.client.removeAllListeners === "function" && this.client.removeAllListeners() && typeof this.client.disconnect === "function" && await this.client.disconnect();
-      this.settings = PluginUtilities.loadSettings("AutoStartRichPresence");
+      this.settings = BdApi.loadData("AutoStartRichPresence", "settings");
       this.currentClientID = this.settings.clientID;
       this.client = RPClient(this.currentClientID);
       this.client.on("setActivityFailed", e => {
         console.error(e);
-        PluginUtilities.showToast("Failed to set Rich Presence activity.", {type: "error"});
+        BdApi.showToast("Failed to set Rich Presence activity.", {type: "error"});
       });
       this.client.on("loginFailed", async e => {
         console.error(e);
         this.client && typeof this.client.removeAllListeners === "function" && this.client.removeAllListeners() && typeof this.client.disconnect === "function" && await this.client.disconnect();
-        PluginUtilities.showToast("Rich Presence client ID authentication failed. Make sure your client ID is correct.", {type: "error"});
+        BdApi.showToast("Rich Presence client ID authentication failed. Make sure your client ID is correct.", {type: "error"});
       });
       this.client.updatePresence({
       	details: this.settings.details || undefined,
@@ -3784,18 +3784,18 @@ class AutoStartRichPresence {
     }, 5000);
   }
   updateSettings() {
-    PluginUtilities.saveSettings("AutoStartRichPresence", this.settings);
+    BdApi.saveData("AutoStartRichPresence", "settings", this.settings);
   }
   generateSettings(panel) {
-    new PluginSettings.ControlGroup("Rich Presence Configuration", () => {this.updateSettings(); this.updateRichPresence();}, {collapsible: false, shown: true}).appendTo(panel).append(
-      new PluginSettings.Textbox("Client ID", "The client ID of your Discord Rich Presence application.", this.settings.clientID || "", "", val => {this.settings.clientID = val;}),
-      new PluginSettings.Textbox("Details", "The line that goes after your game's name.", this.settings.details || "", "", val => {this.settings.details = val;}),
-      new PluginSettings.Textbox("State", "The line that goes after the details.", this.settings.state || "", "", val => {this.settings.state = val;}),
-      new PluginSettings.Textbox("Large Image Key", "The name of the asset for your large image.", this.settings.largeImageKey || "", "", val => {this.settings.largeImageKey = val;}),
-      new PluginSettings.Textbox("Large Image Text", "The text that appears when your large image is hovered over.", this.settings.largeImageText || "", "", val => {this.settings.largeImageText = val;}),
-      new PluginSettings.Textbox("Small Image Key", "The name of the asset for your small image.", this.settings.smallImageKey || "", "", val => {this.settings.smallImageKey = val;}),
-      new PluginSettings.Textbox("Small Image Text", "The text that appears when your small image is hovered over.", this.settings.smallImageText || "", "", val => {this.settings.smallImageText = val;}),
-      new PluginSettings.PillButton("Enable Start Time", "Displays the amount of time your Rich Presence is enabled.", "", "", this.settings.enableStartTime, val => {this.settings.enableStartTime = val;})
+    new window.ZeresPluginLibrary.Settings.SettingGroup("Rich Presence Configuration", {collapsible: false, shown: true, callback: () => {this.updateSettings(); this.updateRichPresence();}}).appendTo(panel).append(
+      new window.ZeresPluginLibrary.Settings.Textbox("Client ID", "The client ID of your Discord Rich Presence application.", this.settings.clientID || "", val => {this.settings.clientID = val;}),
+      new window.ZeresPluginLibrary.Settings.Textbox("Details", "The line that goes after your game's name.", this.settings.details || "", val => {this.settings.details = val;}),
+      new window.ZeresPluginLibrary.Settings.Textbox("State", "The line that goes after the details.", this.settings.state || "", val => {this.settings.state = val;}),
+      new window.ZeresPluginLibrary.Settings.Textbox("Large Image Key", "The name of the asset for your large image.", this.settings.largeImageKey || "", val => {this.settings.largeImageKey = val;}),
+      new window.ZeresPluginLibrary.Settings.Textbox("Large Image Text", "The text that appears when your large image is hovered over.", this.settings.largeImageText || "", val => {this.settings.largeImageText = val;}),
+      new window.ZeresPluginLibrary.Settings.Textbox("Small Image Key", "The name of the asset for your small image.", this.settings.smallImageKey || "", val => {this.settings.smallImageKey = val;}),
+      new window.ZeresPluginLibrary.Settings.Textbox("Small Image Text", "The text that appears when your small image is hovered over.", this.settings.smallImageText || "", val => {this.settings.smallImageText = val;}),
+      new window.ZeresPluginLibrary.Settings.Switch("Enable Start Time", "Displays the amount of time your Rich Presence is enabled.", this.settings.enableStartTime, val => {this.settings.enableStartTime = val;})
 		);
     let div = document.createElement("div");
     div.innerHTML = '<a href="https://discordapp.com/developers/applications/me" rel="noreferrer noopener" target="_blank">Create or edit your Discord Rich Presence application here!</a>';
@@ -3808,13 +3808,13 @@ class AutoStartRichPresence {
 /*
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAlvKw+gACgkQf4qgY6Fc
-SQsj+wf/ZkjFrHgdZ2YGmcpWQP1IauPFS+yyQTltYGlcx1RyTIZJGmFKRmXCXIda
-DV4/UN10kugjg4L2RR6q42mBRrslsnoARkvZD558aGanls6Au9ZGik7jUxqcqBPE
-6jUvjse4ie4z5ULfOD4RxJ/mW1a86HSSndkzApcixS0FKEjL+Ln0RIxbm2xY/guj
-lP+xbKS6CjtFgwKr28mxJ0ztw8UG2Zad6/71rUwtpY0+EqwosIys/9M4i6ovaJcV
-ZhlO8hVH3sKBEfdd6DzTSxklqjNtD3/CPlP5KXIkN/RdR2ANlKNVLEE6qUMZLdZh
-AnrkSqETSTGMv97/nHyDHwaj/UvJMA==
-=MLST
+iQEzBAEBCgAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAlw+1JIACgkQf4qgY6Fc
+SQvMRwgA2mghyP+nBjZSgq3p96L5yZYMT1kf9fIpwejGrCO7nX7ohwV4FuBq9W1Z
+0bOjpPOMGCskzug/Jy3nqb/WpljFkChD2EP7IiwAYccs5F/jk0Nk+SmuoMiP+fkq
+wZhTH/N4V04WRXuMwtK3L0FICCgJ4cdgwpK8+0gXr/pBBAjGKfxfYRk25pum1Rht
+3Xb2v19dkt6fApw0aMdA/bwShwWUj4MDY0Hy6rZv35JNbeHOuNn7eWnFMzidwQHi
+9JvpOJExeC6yvIWDxvS6YHpswCmRKb9gS8vvcKbbNmo9tg8sSpZaAvSwrtfc5Y8q
+lmD+USMUcr63q10ujlQr8iLRF8SREw==
+=xCbE
 -----END PGP SIGNATURE-----
 */
