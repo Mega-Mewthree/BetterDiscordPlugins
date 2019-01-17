@@ -29,7 +29,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Updated January 15th, 2019.
+// Updated January 16th, 2019.
 
 let RPClient;
 
@@ -3698,7 +3698,7 @@ class AutoStartRichPresence {
     return "Auto starts Rich Presence with configurable settings.\nRequired dependency: ZeresPluginLibrary\n\nMy Discord server: https://nebula.mooo.info/discord-invite\nDM me @Lucario ☉ ∝ x²#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.";
   }
   getVersion() {
-    return "1.0.0";
+    return "1.0.1";
   }
   getAuthor() {
     return "Mega_Mewthree"; //Current Discord account: @Lucario ☉ ∝ x²#7902 (438469378418409483)
@@ -3736,7 +3736,7 @@ class AutoStartRichPresence {
   }
   getSettingsPanel() {
     if (!this.initialized) return;
-    this.settings = BdApi.loadData("AutoStartRichPresence", "settings");
+    this.settings = BdApi.loadData("AutoStartRichPresence", "settings") || {};
     const panel = $("<form>").addClass("form").css("width", "100%");
 		if (this.initialized) this.generateSettings(panel);
 		return panel[0];
@@ -3745,7 +3745,7 @@ class AutoStartRichPresence {
     this.currentTimeout && clearTimeout(this.currentTimeout);
     this.currentTimeout = setTimeout(async () => {
       this.client && typeof this.client.removeAllListeners === "function" && this.client.removeAllListeners() && typeof this.client.disconnect === "function" && await this.client.disconnect();
-      this.settings = BdApi.loadData("AutoStartRichPresence", "settings");
+      this.settings = BdApi.loadData("AutoStartRichPresence", "settings") || {};
       this.currentClientID = this.settings.clientID;
       this.client = RPClient(this.currentClientID);
       this.client.on("setActivityFailed", e => {
@@ -3808,13 +3808,13 @@ class AutoStartRichPresence {
 /*
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCgAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAlw+1JIACgkQf4qgY6Fc
-SQvMRwgA2mghyP+nBjZSgq3p96L5yZYMT1kf9fIpwejGrCO7nX7ohwV4FuBq9W1Z
-0bOjpPOMGCskzug/Jy3nqb/WpljFkChD2EP7IiwAYccs5F/jk0Nk+SmuoMiP+fkq
-wZhTH/N4V04WRXuMwtK3L0FICCgJ4cdgwpK8+0gXr/pBBAjGKfxfYRk25pum1Rht
-3Xb2v19dkt6fApw0aMdA/bwShwWUj4MDY0Hy6rZv35JNbeHOuNn7eWnFMzidwQHi
-9JvpOJExeC6yvIWDxvS6YHpswCmRKb9gS8vvcKbbNmo9tg8sSpZaAvSwrtfc5Y8q
-lmD+USMUcr63q10ujlQr8iLRF8SREw==
-=xCbE
+iQEzBAEBCgAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAlw/3vEACgkQf4qgY6Fc
+SQv5bwf/elsMvj07znBY6OMPKqMKESDI5DxRHW6a2ZxC9vlVG/Tuun9ezIGvwmJI
+zp8BK2ZpPVjZjF58d+5svRPbrjUhUMfQszVsJyr9t9tglBx0rI1E6/Uc6xR7U8Eg
+cHwwqs1Ov+qkRdm/rNE/o37/4AHGZlO+IUuEcpkUAO0CG5Sb/sNwPq2EatAYGoO8
+vJdqJ6PMx/CDI4WejYQOtzcMhrdjjRXOo1QIFJLGxocnHw1CGe4Lvm0IJmFQQydP
+A1CFWh8BmTeidZTkwtxvHk0JTFTKmmdKRQfwA69JnO1QI8sKxuwSJi4eBDfy2mNp
+GCZdORHvBLkpGEgYhYyjbS+Gd8p0Cg==
+=YXPR
 -----END PGP SIGNATURE-----
 */
