@@ -30,7 +30,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Updated August 5th, 2018.
+// Updated March 4th, 2019.
 
 class NoDeleteMessages {
   getName() {
@@ -40,13 +40,13 @@ class NoDeleteMessages {
     return "NoDeleteMessages";
   }
   getDescription() {
-    return 'Prevents the client from removing deleted messages (until restart).\nUse ".message.NoDeleteMessages-deleted-message .markup" to edit the CSS of deleted messages.\n\nMy Discord server: https://join-nebula.surge.sh\nDM me @Lucario 🌌 V5.0.0#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
+    return 'Prevents the client from removing deleted messages (until restart).\nUse ".NoDeleteMessages-deleted-message .da-markup" to edit the CSS of deleted messages.\n\nMy Discord server: https://join-nebula.surge.sh\nDM me @Lucario ðŸŒŒ V5.0.0#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
   }
   getVersion() {
-    return "0.0.7";
+    return "0.0.8dev-patch-eNVY";
   }
   getAuthor() {
-    return "Mega_Mewthree"; //Current Discord account: @Lucario 🌌 V5.0.0#7902 (438469378418409483) Wonder how long this one will last...
+    return "Mega_Mewthree"; //Current Discord account: @Lucario ðŸŒŒ V5.0.0#7902 (438469378418409483) Wonder how long this one will last...
   }
   constructor() {
     this.deletedMessages = {};
@@ -69,12 +69,25 @@ class NoDeleteMessages {
   initialize() {
     window.updateDeletedMessages = () => this.updateDeletedMessages;
     PluginUtilities.checkForUpdate(this.getName(), this.getVersion(), `https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Plugins/${this.getName()}/${this.getName()}.plugin.js`);
-    BdApi.injectCSS("NoDeleteMessages-CSS", ".da-message.NoDeleteMessages-deleted-message .da-markup {color: #F00!important;}");
+    
+	BdApi.injectCSS("NoDeleteMessages-CSS", `
+	.NoDeleteMessages-deleted-message .da-markup{
+			color: #F00 !important;
+	}
+	.NoDeleteMessages-deleted-message:not(:hover) img, .NoDeleteMessages-deleted-message:not(:hover) .mention, .NoDeleteMessages-deleted-message:not(:hover) .reactions, .NoDeleteMessages-deleted-message:not(:hover) a {
+				filter: grayscale(100%) !important;
+	}
+	
+	.NoDeleteMessages-deleted-message img, .NoDeleteMessages-deleted-message .mention, .NoDeleteMessages-deleted-message .reactions, .NoDeleteMessages-deleted-message a {
+				transition: filter 0.3s !important;
+			}
+	`)
+	
     Patcher.instead(this.getName(), InternalUtilities.WebpackModules.find(m => m.dispatch), "dispatch", (thisObject, args, originalFunction) => {
       let shouldFilter = this.filter(args[0]);
       if (!shouldFilter) return originalFunction(...args);
     });
-    PluginUtilities.showToast("NoDeleteMessages has started!");
+    BdApi.showToast("NoDeleteMessages has started!");
   }
   stop() {
     this.deletedMessages = {};
