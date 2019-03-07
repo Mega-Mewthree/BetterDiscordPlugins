@@ -43,7 +43,7 @@ class RightClickRoleForID {
     return 'Right-clicking a role in role menus or member popups will copy the role ID to your clipboard.\n\nMy Discord server: https://nebula.mooo.info/discord-invite\nDM me @Lucario 🌌 V5.0.0#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
   }
   getVersion() {
-    return "0.0.2";
+    return "0.0.3";
   }
   getAuthor() {
     return "Mega_Mewthree"; //Current Discord account: @Lucario 🌌 V5.0.0#7902 (438469378418409483)
@@ -52,25 +52,25 @@ class RightClickRoleForID {
   load() {}
   unload() {}
   start() {
-    let libraryScript = document.getElementById("zeresLibraryScript");
-    if (!window.ZeresLibrary || window.ZeresLibrary.isOutdated) {
-      if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
+    var self = this;
+    var libraryScript = document.getElementById("ZLibraryScript");
+    if (!libraryScript || !window.ZLibrary) {
       libraryScript = document.createElement("script");
       libraryScript.setAttribute("type", "text/javascript");
-      libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
-      libraryScript.setAttribute("id", "zeresLibraryScript");
+      libraryScript.setAttribute("src", "https://rauenzi.github.io/BDPluginLibrary/release/ZLibrary.js");
+      libraryScript.setAttribute("id", "ZLibraryScript");
       document.head.appendChild(libraryScript);
     }
-    if (window.ZeresLibrary) this.initialize();
-    else libraryScript.addEventListener("load", () => { this.initialize(); });
+    if (window.ZLibrary) this.initialize();
+    else libraryScript.addEventListener("load", () => {self.initialize();});
   }
   stop() {
     this.active = false;
   }
   initialize() {
-    PluginUtilities.checkForUpdate(this.getName(), this.getVersion(), `https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Plugins/${this.getName()}/${this.getName()}.plugin.js`);
+    ZLibrary.PluginUpdater.checkForUpdate(this.getName(), this.getVersion(), `https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Plugins/${this.getName()}/${this.getName()}.plugin.js`);
     this.active = true;
-    PluginUtilities.showToast("RightClickRoleForID has started!");
+    ZLibrary.Toasts.show("RightClickRoleForID has started!");
   }
   observer({addedNodes}) {
     let len = addedNodes.length;
@@ -96,7 +96,7 @@ class RightClickRoleForID {
               roleHolder.children[len].oncontextmenu = () => {
                 if (!this.active) return;
                 DiscordNative.clipboard.copy(role.props.id);
-                PluginUtilities.showToast("Copied Role ID!", {type: "success"});
+                ZLibrary.Toasts.show("Copied Role ID!", {type: "success"});
               };
             }
           } catch (e) {}
@@ -111,7 +111,7 @@ class RightClickRoleForID {
               roleHolder.children[len].oncontextmenu = () => {
                 if (!this.active) return;
                 DiscordNative.clipboard.copy(role.props.id);
-                PluginUtilities.showToast("Copied Role ID!", {type: "success"});
+                ZLibrary.Toasts.show("Copied Role ID!", {type: "success"});
               };
             }
           } catch (e) {}
@@ -129,7 +129,7 @@ class RightClickRoleForID {
               roleHolder.children[len].oncontextmenu = () => {
                 if (!this.active) return;
                 DiscordNative.clipboard.copy(role.key);
-                PluginUtilities.showToast("Copied Role ID!", {type: "success"});
+                ZLibrary.Toasts.show("Copied Role ID!", {type: "success"});
               };
             }
           } catch (e) {}
