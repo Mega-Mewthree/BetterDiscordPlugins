@@ -87,8 +87,11 @@ class NoDeleteMessages {
       .NoDeleteMessages-edited-message > .NoDeleteMessages-edited-message:not(:last-child) > .NoDeleteMessages-edited-message, :not(.NoDeleteMessages-edited-message) > .NoDeleteMessages-edited-message {
         color: rgba(255, 255, 255, 0.5) !important;
       }
-      .NoDeleteMessages-deleted-message .NoDeleteMessages-edited-message > .NoDeleteMessages-edited-message, .NoDeleteMessages-deleted-message .NoDeleteMessages-edited-message > .NoDeleteMessages-edited-message:not(:last-child) > .NoDeleteMessages-edited-message {
+      .NoDeleteMessages-deleted-message :not(.NoDeleteMessages-edited-message) > .NoDeleteMessages-edited-message, .NoDeleteMessages-deleted-message .NoDeleteMessages-edited-message > .NoDeleteMessages-edited-message:not(:last-child) > .NoDeleteMessages-edited-message {
         color: rgba(240, 71, 71, 0.5) !important;
+      }
+      .NoDeleteMessages-deleted-message .NoDeleteMessages-edited-message > .NoDeleteMessages-edited-message:last-child > .NoDeleteMessages-edited-message {
+        color: #F00 !important;
       }
     `)
 
@@ -102,6 +105,7 @@ class NoDeleteMessages {
       args[2] = edits[edits.length - 1].message;
       return originalFunction(...args);
     });
+    console.log("NoDeleteMessages has started!");
     BdApi.showToast("NoDeleteMessages has started!");
   }
   stop() {
