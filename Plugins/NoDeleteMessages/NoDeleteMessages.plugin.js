@@ -2,14 +2,14 @@
 
 /*
 -----BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA256
+Hash: SHA512
 
 */
 
 /*
 MIT License
 
-Copyright (c) 2018 Mega-Mewthree
+Copyright (c) 2018-2019 Mega-Mewthree
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -30,7 +30,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Updated March 20th, 2018.
+// Updated March 22nd, 2019.
 
 class NoDeleteMessages {
   getName() {
@@ -46,7 +46,7 @@ class NoDeleteMessages {
     return "0.0.9";
   }
   getAuthor() {
-    return "Mega_Mewthree & ShiiroSan";
+    return "Mega_Mewthree (original), ShiiroSan (edit logging)";
   }
   constructor() {
     this.deletedMessages = {};
@@ -264,13 +264,13 @@ class NoDeleteMessages {
 /*
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAltnx9QACgkQf4qgY6Fc
-SQsblAf/a4savAKVpxwXIIMyn8wlACwrEleOV/WykFIVqzEo3MHWM/8tZcBDxjsJ
-1NhgUtXbk7qNVgt2XKvjyRfYsWKdPBhrWrlZCJ934yUruQQoRgb5RkCV5XeQ+En8
-DYZRHM548EifbXT9Jf5uvBo4Wk2yni3ycOuQbjznB10lg15tl2sl5O5bIjtjqlwu
-b02Ybu2JhDDJoiBTAQkAPUWwYYZ0TAzz1wh/Vq16MtNTQDJjP5KCI/az0LFrQl5L
-JRvY3z7irJOGngaJcfLf+pCgQlAL4j3AKutIaWdWFOmohPfUau7JUBYrqfasjepI
-Qm1BKyRKAfe9vbow3tl31yxcUoCiwA==
-=j/0E
+iQEzBAEBCgAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAlyVsaUACgkQf4qgY6Fc
+SQt2+AgAoOB+0/47n6aOdCafohBLJBW/ev8fT09CRyy7n7SI5uS9Xczw0MwdWWuh
+1qxGO/B2khWMfc558cq5vmpcGydW3mwy+0iffhUXS180UZXqvjfzzkwXP4mOr/Dt
+Y5sLduhGoI8wPHX6f+pxNZ7ASfEXH/kSVZN9HamN78jOVUdsPgqdgZye+QYIL+Ev
+X4Kyorgqy001CbdBU3k0IFGi1DP/28krmnv46WGPH9Jl/ux3itGF+MjrUv+U6LoW
+FSMmkuJqO6lVhnCwKumR7b6BCCYiyxszceRGwnKi60i74Vr0W50Yku+m5y1xQPzt
+v8XJQ0pHZWsr9KRLvnq3w5fUb0H03Q==
+=l6IT
 -----END PGP SIGNATURE-----
 */
