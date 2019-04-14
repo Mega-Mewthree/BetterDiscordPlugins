@@ -29,7 +29,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Updated January 16th, 2019.
+// Updated April 14th, 2019.
 
 let RPClient;
 
@@ -3698,7 +3698,7 @@ class AutoStartRichPresence {
     return "Auto starts Rich Presence with configurable settings.\nRequired dependency: ZeresPluginLibrary\n\nMy Discord server: https://nebula.mooo.info/discord-invite\nDM me @Lucario ☉ ∝ x²#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.";
   }
   getVersion() {
-    return "1.0.1";
+    return "1.1.0";
   }
   getAuthor() {
     return "Mega_Mewthree"; //Current Discord account: @Lucario ☉ ∝ x²#7902 (438469378418409483)
@@ -3726,11 +3726,16 @@ class AutoStartRichPresence {
     }
     BdApi.showToast("AutoStartRichPresence has started!");
     this.startTime = Date.now();
+    this.settings = BdApi.loadData("AutoStartRichPresence", "settings") || {};
+    this.currentClientID = this.settings.clientID;
+    this.rpcClientInfo = {};
+    this.discordSetActivityHandler = null;
     this.startRichPresence();
     this.initialized = true;
   }
   async stop() {
-    this.client && typeof this.client.disconnect === "function" && await this.client.disconnect();
+    if (this.settings.experimentalRPCEventInjection) await this.experimental_stopRichPresence();
+    await this.stopRichPresence();
     this.initialized = false;
     BdApi.showToast("AutoStartRichPresence has stopped!");
   }
@@ -3742,11 +3747,10 @@ class AutoStartRichPresence {
 		return panel[0];
   }
   async startRichPresence() {
+    if (this.settings.experimentalRPCEventInjection) return await this.experimental_startRichPresence();
     this.currentTimeout && clearTimeout(this.currentTimeout);
     this.currentTimeout = setTimeout(async () => {
       this.client && typeof this.client.removeAllListeners === "function" && this.client.removeAllListeners() && typeof this.client.disconnect === "function" && await this.client.disconnect();
-      this.settings = BdApi.loadData("AutoStartRichPresence", "settings") || {};
-      this.currentClientID = this.settings.clientID;
       this.client = RPClient(this.currentClientID);
       this.client.on("setActivityFailed", e => {
         console.error(e);
@@ -3769,9 +3773,13 @@ class AutoStartRichPresence {
     }, 5000);
   }
   updateRichPresence() {
+    if (this.settings.experimentalRPCEventInjection) return this.experimental_updateRichPresence();
     this.currentTimeout && clearTimeout(this.currentTimeout);
     this.currentTimeout = setTimeout(() => {
-      if (!this.client || this.currentClientID !== this.settings.clientID) return this.startRichPresence();
+      if (!this.client || this.currentClientID !== this.settings.clientID) {
+        this.currentClientID = this.settings.clientID;
+        return this.startRichPresence();
+      }
       this.client.updatePresence({
       	details: this.settings.details || undefined,
       	state: this.settings.state || undefined,
@@ -3782,6 +3790,98 @@ class AutoStartRichPresence {
       	smallImageText: this.settings.smallImageText || undefined
       });
     }, 5000);
+  }
+  async stopRichPresence() {
+    this.client && typeof this.client.disconnect === "function" && await this.client.disconnect();
+  }
+  async experimental_startRichPresence() {
+    const RPCValidatorModule = BdApi.findModuleByProps("validateSocketClient");
+    const validateRPC = RPCValidatorModule.validateSocketClient.bind(RPCValidatorModule);
+    let validationObject = {
+      application: {id: null, name: null, icon: null},
+      authorization: {accessToken: null, authing: false, expires: new Date(0), scopes: []},
+      encoding: "json",
+      transport: "ipc",
+      id: "1",
+      version: 1
+    };
+    try {
+      await validateRPC(validationObject, null, this.currentClientID);
+    } catch (e) {
+      if (e.message === "Invalid Client ID") {
+        return BdApi.showToast("Rich Presence client ID authentication failed. Make sure your client ID is correct.", {type: "error"});
+      }
+    }
+    this.rpcClientInfo = validationObject.application;
+    return await this.experimental_updateRichPresence();
+  }
+  async experimental_updateRichPresence() {
+    if (this.currentClientID !== this.settings.clientID) {
+      this.currentClientID = this.settings.clientID;
+      return await this.experimental_startRichPresence();
+    }
+    const SetActivityModule = BdApi.findModuleByProps("SET_ACTIVITY").SET_ACTIVITY;
+    if (!this.discordSetActivityHandler) this.discordSetActivityHandler = SetActivityModule.handler;
+    SetActivityModule.handler = function () {};
+    const setActivity = this.discordSetActivityHandler.bind(SetActivityModule);
+    setActivity(this.buildActivityObject());
+  }
+  async experimental_stopRichPresence() {
+    if (this.discordSetActivityHandler) {
+      const SetActivityModule = BdApi.findModuleByProps("SET_ACTIVITY").SET_ACTIVITY;
+      SetActivityModule.handler = this.discordSetActivityHandler;
+      // I don't know how to unset the Rich Presence yet.
+      return BdApi.showToast("Restart Discord to clear your current presence.", {type: "info"});
+    }
+  }
+  buildActivityObject() {
+    const activityObject = {
+      socket: {
+        transport: "ipc",
+        id: "1",
+        version: 1,
+        encoding: "json",
+        application: {
+          id: this.currentClientID,
+          name: this.rpcClientInfo.name,
+          icon: null,
+          coverImage: this.rpcClientInfo.coverImage,
+          flags: this.rpcClientInfo.flags
+        }
+      },
+      cmd: "SET_ACTIVITY",
+      args: {
+        pid: require("process").pid,
+        activity: {
+          timestamps: {},
+          assets: {},
+          name: this.rpcClientInfo.name,
+          application_id: this.currentClientID
+        }
+      }
+    };
+    if (this.settings.details) {
+      activityObject.args.activity.details = this.settings.details;
+    }
+    if (this.settings.state) {
+      activityObject.args.activity.state = this.settings.state;
+    }
+    if (this.settings.enableStartTime) {
+      activityObject.args.activity.timestamps.start = Math.floor(this.startTime / 1000) * 1000;
+    }
+    if (this.settings.largeImageKey) {
+      activityObject.args.activity.assets.large_image = this.settings.largeImageKey;
+      if (this.settings.largeImageText) {
+        activityObject.args.activity.assets.large_text = this.settings.largeImageText;
+      }
+    }
+    if (this.settings.smallImageKey) {
+      activityObject.args.activity.assets.small_image = this.settings.smallImageKey;
+      if (this.settings.smallImageText) {
+        activityObject.args.activity.assets.small_text = this.settings.smallImageText;
+      }
+    }
+    return activityObject;
   }
   updateSettings() {
     BdApi.saveData("AutoStartRichPresence", "settings", this.settings);
@@ -3795,7 +3895,8 @@ class AutoStartRichPresence {
       new window.ZeresPluginLibrary.Settings.Textbox("Large Image Text", "The text that appears when your large image is hovered over.", this.settings.largeImageText || "", val => {this.settings.largeImageText = val;}),
       new window.ZeresPluginLibrary.Settings.Textbox("Small Image Key", "The name of the asset for your small image.", this.settings.smallImageKey || "", val => {this.settings.smallImageKey = val;}),
       new window.ZeresPluginLibrary.Settings.Textbox("Small Image Text", "The text that appears when your small image is hovered over.", this.settings.smallImageText || "", val => {this.settings.smallImageText = val;}),
-      new window.ZeresPluginLibrary.Settings.Switch("Enable Start Time", "Displays the amount of time your Rich Presence is enabled.", this.settings.enableStartTime, val => {this.settings.enableStartTime = val;})
+      new window.ZeresPluginLibrary.Settings.Switch("Enable Start Time", "Displays the amount of time your Rich Presence is enabled.", this.settings.enableStartTime, val => {this.settings.enableStartTime = val;}),
+      new window.ZeresPluginLibrary.Settings.Switch("Experimental: RPC Event Injection", "Bypasses the use of IPC and hopefully prevents other programs from using their own Rich Presences.", this.settings.experimentalRPCEventInjection, async val => {this.settings.experimentalRPCEventInjection = val; if (val) {await this.stopRichPresence(); await this.experimental_startRichPresence();} else {await this.experimental_stopRichPresence(); await this.startRichPresence();}})
 		);
     let div = document.createElement("div");
     div.innerHTML = '<a href="https://discordapp.com/developers/applications/me" rel="noreferrer noopener" target="_blank">Create or edit your Discord Rich Presence application here!</a>';
@@ -3808,13 +3909,13 @@ class AutoStartRichPresence {
 /*
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCgAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAlw/3vEACgkQf4qgY6Fc
-SQv5bwf/elsMvj07znBY6OMPKqMKESDI5DxRHW6a2ZxC9vlVG/Tuun9ezIGvwmJI
-zp8BK2ZpPVjZjF58d+5svRPbrjUhUMfQszVsJyr9t9tglBx0rI1E6/Uc6xR7U8Eg
-cHwwqs1Ov+qkRdm/rNE/o37/4AHGZlO+IUuEcpkUAO0CG5Sb/sNwPq2EatAYGoO8
-vJdqJ6PMx/CDI4WejYQOtzcMhrdjjRXOo1QIFJLGxocnHw1CGe4Lvm0IJmFQQydP
-A1CFWh8BmTeidZTkwtxvHk0JTFTKmmdKRQfwA69JnO1QI8sKxuwSJi4eBDfy2mNp
-GCZdORHvBLkpGEgYhYyjbS+Gd8p0Cg==
-=YXPR
+iQEzBAEBCgAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAlyy3s4ACgkQf4qgY6Fc
+SQuXLQf/a93/99pRdMKERCrpohhb5+VhN7GOhO2EgQaT75/TtzETjNHDk9bq9/uu
+WJDm7hKbDN2eZHomdjNpA97FXkwpoHSNC81TehPqMH0yExx4UjtGkyZwNQzAA1Au
+re9F8pTuyCsUFpVg69edc08kJdXyrgiwf09q+0ZWXCH0+SniJ0+WOhIOIRTXqW73
+VeS1xdUAKY/0jG+Gjh81rJgQXgZvign2rUepeZ4YEpNSzbv4/v4CaO+4BoD1d74D
+qK8O2AOkq+elIE9wLDN4PzUmMfIDRbArcWeso+I86GdPtZu8IfsXxQm0S4i530kt
+fypb/P6y8Xz2EpkUe0vj28Blo1K7Ww==
+=ZlYC
 -----END PGP SIGNATURE-----
 */
