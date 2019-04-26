@@ -202,8 +202,6 @@ class NoDeleteMessages {
             }
             const elementEdited = this.showEdited(edited[i].message);
             elementEdited.classList.add("NoDeleteMessages-edited-message");
-            var tooltips = new ZeresPluginLibrary.Tooltip(elementEdited, "Test");
-            tooltips.enable();
             elem.appendChild(elementEdited);
           }
         }
