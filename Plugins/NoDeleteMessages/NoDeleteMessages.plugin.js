@@ -56,18 +56,8 @@ class NoDeleteMessages {
   load() {}
   unload() {}
   start() {
-    let libraryScript = document.getElementById("ZLibraryScript");
-        if (!libraryScript || !window.ZLibrary) {
-            if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
-            libraryScript = document.createElement("script");
-            libraryScript.setAttribute("type", "text/javascript");
-            libraryScript.setAttribute("src", "https://rauenzi.github.io/BDPluginLibrary/release/ZLibrary.js");
-            libraryScript.setAttribute("id", "ZLibraryScript");
-            document.head.appendChild(libraryScript);
-        }
-
+    if (!global.ZeresPluginLibrary) return window.BdApi.alert("Library Missing",`The library plugin needed for ${this.getName()} is missing.<br /><br /> <a href="https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js" target="_blank">Click here to download the library!</a>`);
         if (window.ZLibrary) this.initialize();
-        else libraryScript.addEventListener("load", () => { this.initialize(); });
   }
   initialize() {
     window.updateDeletedMessages = () => this.updateDeletedMessages;
