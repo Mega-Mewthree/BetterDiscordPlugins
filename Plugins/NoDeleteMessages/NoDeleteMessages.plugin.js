@@ -43,7 +43,7 @@ class NoDeleteMessages {
     return 'Prevents the client from removing deleted messages and print edited messages (until restart).\nUse ".NoDeleteMessages-deleted-message .da-markup" to edit the CSS of deleted messages.\n\nMy Discord server: https://join-nebula.surge.sh\nDM me @Lucario 🌌 V5.0.0#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
   }
   getVersion() {
-    return "0.0.9";
+    return "0.1.0";
   }
   getAuthor() {
     return "Mega_Mewthree (original), ShiiroSan (edit logging)";
@@ -56,23 +56,22 @@ class NoDeleteMessages {
   load() {}
   unload() {}
   start() {
-    let libraryScript = document.getElementById("zeresLibraryScript");
-    if (!window.ZeresLibrary || window.ZeresLibrary.isOutdated) {
-      if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
-      libraryScript = document.createElement("script");
-      libraryScript.setAttribute("type", "text/javascript");
-      libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
-      libraryScript.setAttribute("id", "zeresLibraryScript");
-      document.head.appendChild(libraryScript);
-    }
-    if (window.ZeresLibrary) this.initialize();
-    else libraryScript.addEventListener("load", () => {
-      this.initialize();
-    });
+    let libraryScript = document.getElementById("ZLibraryScript");
+        if (!libraryScript || !window.ZLibrary) {
+            if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
+            libraryScript = document.createElement("script");
+            libraryScript.setAttribute("type", "text/javascript");
+            libraryScript.setAttribute("src", "https://rauenzi.github.io/BDPluginLibrary/release/ZLibrary.js");
+            libraryScript.setAttribute("id", "ZLibraryScript");
+            document.head.appendChild(libraryScript);
+        }
+
+        if (window.ZLibrary) this.initialize();
+        else libraryScript.addEventListener("load", () => { this.initialize(); });
   }
   initialize() {
     window.updateDeletedMessages = () => this.updateDeletedMessages;
-    PluginUtilities.checkForUpdate(this.getName(), this.getVersion(), `https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Plugins/${this.getName()}/${this.getName()}.plugin.js`);
+    ZLibrary.PluginUpdater.checkForUpdate(this.getName(), this.getVersion(), `https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Plugins/${this.getName()}/${this.getName()}.plugin.js`);
 
     BdApi.injectCSS("NoDeleteMessages-CSS", `
       .NoDeleteMessages-deleted-message .da-markup{
@@ -95,11 +94,11 @@ class NoDeleteMessages {
       }
     `)
 
-    Patcher.instead(this.getName(), InternalUtilities.WebpackModules.find(m => m.dispatch), "dispatch", (thisObject, args, originalFunction) => {
+    ZLibrary.Patcher.instead(this.getName(), ZLibrary.WebpackModules.find(m => m.dispatch), "dispatch", (thisObject, args, originalFunction) => {
       let shouldFilter = this.filter(args[0]);
       if (!shouldFilter) return originalFunction(...args);
     });
-    Patcher.instead(this.getName(), InternalUtilities.WebpackModules.find(m => m.startEditMessage), "startEditMessage", (thisObject, args, originalFunction) => {
+    ZLibrary.Patcher.instead(this.getName(), ZLibrary.WebpackModules.find(m => m.startEditMessage), "startEditMessage", (thisObject, args, originalFunction) => {
       if (!this.editedMessages[args[0]] || !this.editedMessages[args[0]][args[1]]) return originalFunction(...args);
       const edits = this.editedMessages[args[0]][args[1]];
       args[2] = edits[edits.length - 1].message;
@@ -112,7 +111,7 @@ class NoDeleteMessages {
     this.deletedMessages = {};
     this.editedMessages = [];
     BdApi.clearCSS("NoDeleteMessages-CSS");
-    Patcher.unpatchAll(this.getName());
+    ZLibrary.Patcher.unpatchAll(this.getName());
   }
   filter(evt) {
     if (evt.type === "MESSAGE_DELETE") {
@@ -186,7 +185,7 @@ class NoDeleteMessages {
     if (!channelDeletedMessages) return;
     $(".da-message").each((index, elem) => {
       try {
-        const messageID = ReactUtilities.getOwnerInstance(elem).props.message.id;
+        const messageID = ZLibrary.ReactTools.getOwnerInstance(elem).props.message.id;
         if (channelDeletedMessages.includes(messageID)) {
           elem.classList.add("NoDeleteMessages-deleted-message");
         }
@@ -202,7 +201,7 @@ class NoDeleteMessages {
         const markupClassName = this.findModule("markup")["markup"].split(" ")[0];
         while (elem.getElementsByClassName(markupClassName).length)
           elem.getElementsByClassName(markupClassName)[0].remove();
-        const messageID = ReactUtilities.getOwnerInstance(elem).props.message.id;
+        const messageID = ZLibrary.ReactTools.getOwnerInstance(elem).props.message.id;
         if (channelEditedMessages[messageID]) {
           elem.classList.add("NoDeleteMessages-edited-message");
           const edited = this.editedMessages[this.getCurrentChannelID()][messageID];
@@ -250,14 +249,14 @@ class NoDeleteMessages {
 
   findModule(proporties) {
     if (typeof proporties == "string") { //search for an unique property
-      return InternalUtilities.WebpackModules.find(module => module[proporties] != undefined);
+      return ZLibrary.WebpackModules.find(module => module[proporties] != undefined);
     } else {//search multiple properties
-      return InternalUtilities.WebpackModules.find(module => proporties.every(property => module[property] != undefined));
+      return ZLibrary.WebpackModules.find(module => proporties.every(property => module[property] != undefined));
     }
   }
 
   getCurrentChannelID() {
-    return DiscordModules.SelectedChannelStore.getChannelId();
+    return ZLibrary.DiscordModules.SelectedChannelStore.getChannelId();
   }
 }
 
