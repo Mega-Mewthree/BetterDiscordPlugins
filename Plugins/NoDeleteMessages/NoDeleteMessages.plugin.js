@@ -40,7 +40,7 @@ class NoDeleteMessages {
     return "NoDeleteMessages";
   }
   getDescription() {
-    return 'Prevents the client from removing deleted messages and print edited messages (until restart).\nUse ".NoDeleteMessages-deleted-message .da-markup" to edit the CSS of deleted messages.\n\nMy Discord server: https://join-nebula.surge.sh\nDM me @Lucario 🌌 V5.0.0#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
+    return 'Prevents the client from removing deleted messages and print edited messages (until restart).\nUse ".NoDeleteMessages-deleted-message .da-markup" to edit the CSS of deleted messages.\n\nMy Discord server: https://join-nebula.surge.sh\nDM me @Lucario ☉ ∝ x²#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
   }
   getVersion() {
     return "0.1.1";
@@ -123,7 +123,7 @@ class NoDeleteMessages {
       if (evt.channelId === this.getCurrentChannelID()) this.updateDeletedMessages();
       return true;
     } else if (evt.type === "MESSAGE_UPDATE" && evt.message.edited_timestamp) {
-      /*  
+      /*
        * editedMessage works like this
        * [channel_id][message_id]
        *   message: text
@@ -237,11 +237,11 @@ class NoDeleteMessages {
     return editText;
   }
 
-  findModule(proporties) {
-    if (typeof proporties == "string") { //search for an unique property
-      return ZeresPluginLibrary.WebpackModules.find(module => module[proporties] != undefined);
+  findModule(properties) {
+    if (typeof properties == "string") { //search for an unique property
+      return ZeresPluginLibrary.WebpackModules.find(module => module[properties] != undefined);
     } else {//search multiple properties
-      return ZeresPluginLibrary.WebpackModules.find(module => proporties.every(property => module[property] != undefined));
+      return ZeresPluginLibrary.WebpackModules.find(module => properties.every(property => module[property] != undefined));
     }
   }
 
@@ -253,13 +253,13 @@ class NoDeleteMessages {
 /*
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCgAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAlyVsaUACgkQf4qgY6Fc
-SQt2+AgAoOB+0/47n6aOdCafohBLJBW/ev8fT09CRyy7n7SI5uS9Xczw0MwdWWuh
-1qxGO/B2khWMfc558cq5vmpcGydW3mwy+0iffhUXS180UZXqvjfzzkwXP4mOr/Dt
-Y5sLduhGoI8wPHX6f+pxNZ7ASfEXH/kSVZN9HamN78jOVUdsPgqdgZye+QYIL+Ev
-X4Kyorgqy001CbdBU3k0IFGi1DP/28krmnv46WGPH9Jl/ux3itGF+MjrUv+U6LoW
-FSMmkuJqO6lVhnCwKumR7b6BCCYiyxszceRGwnKi60i74Vr0W50Yku+m5y1xQPzt
-v8XJQ0pHZWsr9KRLvnq3w5fUb0H03Q==
-=l6IT
+iQEzBAEBCgAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAlzDqyAACgkQf4qgY6Fc
+SQsd+QgAxHbbXNCyVdGRF8aQfSEMjmmAZsAyxUgCiZXtj3jh7/SpBoEqWiVUcS3g
+sSPVpP7271esTVuGJp4MhEX0C9WKVceJy50IE9MQ9zVI0CF2xj//xzDTfJhyrM2g
+jbmUfv4+cd1HgtjL3SO5Phpwic3EGffnaBFMJxG3mKqFmDXVFicG3hkYgalcaXWk
+mH53tP5/cwZmbCtuQ8XZ1x/yh2raXoV/Y6CxBOFd9tTDIfkerTDNrlmtSzdGAP85
+87uEIff6SvAcg8gGAq4jLlkmME1YMu5EPZtNGQeuEdBCY+TX8HYYK69QAxQQHuOW
+khBfR8tFfXhlR12lLFwFVV/rOmkXcA==
+=dvM3
 -----END PGP SIGNATURE-----
 */
