@@ -30,7 +30,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Updated March 22nd, 2019.
+// Updated April 27nd, 2019.
 
 class NoDeleteMessages {
   getName() {
@@ -40,10 +40,10 @@ class NoDeleteMessages {
     return "NoDeleteMessages";
   }
   getDescription() {
-    return 'Prevents the client from removing deleted messages and print edited messages (until restart).\nUse ".NoDeleteMessages-deleted-message .da-markup" to edit the CSS of deleted messages.\n\nMy Discord server: https://join-nebula.surge.sh\nDM me @Lucario 🌌 V5.0.0#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
+    return 'Prevents the client from removing deleted messages and print edited messages (until restart).\nUse ".NoDeleteMessages-deleted-message .da-markup" to edit the CSS of deleted messages.\n\nMy Discord server: https://join-nebula.surge.sh\nDM me @Lucario ☉ ∝ x²#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
   }
   getVersion() {
-    return "0.0.9";
+    return "0.1.1";
   }
   getAuthor() {
     return "Mega_Mewthree (original), ShiiroSan (edit logging)";
@@ -56,23 +56,12 @@ class NoDeleteMessages {
   load() {}
   unload() {}
   start() {
-    let libraryScript = document.getElementById("zeresLibraryScript");
-    if (!window.ZeresLibrary || window.ZeresLibrary.isOutdated) {
-      if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
-      libraryScript = document.createElement("script");
-      libraryScript.setAttribute("type", "text/javascript");
-      libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
-      libraryScript.setAttribute("id", "zeresLibraryScript");
-      document.head.appendChild(libraryScript);
-    }
-    if (window.ZeresLibrary) this.initialize();
-    else libraryScript.addEventListener("load", () => {
-      this.initialize();
-    });
+    if (!global.ZeresPluginLibrary) return window.BdApi.alert("Library Missing",`The library plugin needed for ${this.getName()} is missing.<br /><br /> <a href="https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js" target="_blank">Click here to download the library!</a>`);
+        if (window.ZeresPluginLibrary) this.initialize();
   }
   initialize() {
     window.updateDeletedMessages = () => this.updateDeletedMessages;
-    PluginUtilities.checkForUpdate(this.getName(), this.getVersion(), `https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Plugins/${this.getName()}/${this.getName()}.plugin.js`);
+    ZeresPluginLibrary.PluginUpdater.checkForUpdate(this.getName(), this.getVersion(), `https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Plugins/${this.getName()}/${this.getName()}.plugin.js`);
 
     BdApi.injectCSS("NoDeleteMessages-CSS", `
       .NoDeleteMessages-deleted-message .da-markup{
@@ -95,24 +84,24 @@ class NoDeleteMessages {
       }
     `)
 
-    Patcher.instead(this.getName(), InternalUtilities.WebpackModules.find(m => m.dispatch), "dispatch", (thisObject, args, originalFunction) => {
+    ZeresPluginLibrary.Patcher.instead(this.getName(), ZeresPluginLibrary.WebpackModules.find(m => m.dispatch), "dispatch", (thisObject, args, originalFunction) => {
       let shouldFilter = this.filter(args[0]);
       if (!shouldFilter) return originalFunction(...args);
     });
-    Patcher.instead(this.getName(), InternalUtilities.WebpackModules.find(m => m.startEditMessage), "startEditMessage", (thisObject, args, originalFunction) => {
+    ZeresPluginLibrary.Patcher.instead(this.getName(), ZeresPluginLibrary.WebpackModules.find(m => m.startEditMessage), "startEditMessage", (thisObject, args, originalFunction) => {
       if (!this.editedMessages[args[0]] || !this.editedMessages[args[0]][args[1]]) return originalFunction(...args);
       const edits = this.editedMessages[args[0]][args[1]];
       args[2] = edits[edits.length - 1].message;
       return originalFunction(...args);
     });
     console.log("NoDeleteMessages has started!");
-    BdApi.showToast("NoDeleteMessages has started!");
+    ZeresPluginLibrary.Toasts.success("NoDeleteMessages has started!");
   }
   stop() {
     this.deletedMessages = {};
     this.editedMessages = [];
     BdApi.clearCSS("NoDeleteMessages-CSS");
-    Patcher.unpatchAll(this.getName());
+    ZeresPluginLibrary.Patcher.unpatchAll(this.getName());
   }
   filter(evt) {
     if (evt.type === "MESSAGE_DELETE") {
@@ -134,7 +123,7 @@ class NoDeleteMessages {
       if (evt.channelId === this.getCurrentChannelID()) this.updateDeletedMessages();
       return true;
     } else if (evt.type === "MESSAGE_UPDATE" && evt.message.edited_timestamp) {
-      /*  
+      /*
        * editedMessage works like this
        * [channel_id][message_id]
        *   message: text
@@ -186,7 +175,7 @@ class NoDeleteMessages {
     if (!channelDeletedMessages) return;
     $(".da-message").each((index, elem) => {
       try {
-        const messageID = ReactUtilities.getOwnerInstance(elem).props.message.id;
+        const messageID = ZeresPluginLibrary.ReactTools.getOwnerInstance(elem).props.message.id;
         if (channelDeletedMessages.includes(messageID)) {
           elem.classList.add("NoDeleteMessages-deleted-message");
         }
@@ -202,7 +191,7 @@ class NoDeleteMessages {
         const markupClassName = this.findModule("markup")["markup"].split(" ")[0];
         while (elem.getElementsByClassName(markupClassName).length)
           elem.getElementsByClassName(markupClassName)[0].remove();
-        const messageID = ReactUtilities.getOwnerInstance(elem).props.message.id;
+        const messageID = ZeresPluginLibrary.ReactTools.getOwnerInstance(elem).props.message.id;
         if (channelEditedMessages[messageID]) {
           elem.classList.add("NoDeleteMessages-edited-message");
           const edited = this.editedMessages[this.getCurrentChannelID()][messageID];
@@ -248,29 +237,29 @@ class NoDeleteMessages {
     return editText;
   }
 
-  findModule(proporties) {
-    if (typeof proporties == "string") { //search for an unique property
-      return InternalUtilities.WebpackModules.find(module => module[proporties] != undefined);
+  findModule(properties) {
+    if (typeof properties == "string") { //search for an unique property
+      return ZeresPluginLibrary.WebpackModules.find(module => module[properties] != undefined);
     } else {//search multiple properties
-      return InternalUtilities.WebpackModules.find(module => proporties.every(property => module[property] != undefined));
+      return ZeresPluginLibrary.WebpackModules.find(module => properties.every(property => module[property] != undefined));
     }
   }
 
   getCurrentChannelID() {
-    return DiscordModules.SelectedChannelStore.getChannelId();
+    return ZeresPluginLibrary.DiscordModules.SelectedChannelStore.getChannelId();
   }
 }
 
 /*
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCgAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAlyVsaUACgkQf4qgY6Fc
-SQt2+AgAoOB+0/47n6aOdCafohBLJBW/ev8fT09CRyy7n7SI5uS9Xczw0MwdWWuh
-1qxGO/B2khWMfc558cq5vmpcGydW3mwy+0iffhUXS180UZXqvjfzzkwXP4mOr/Dt
-Y5sLduhGoI8wPHX6f+pxNZ7ASfEXH/kSVZN9HamN78jOVUdsPgqdgZye+QYIL+Ev
-X4Kyorgqy001CbdBU3k0IFGi1DP/28krmnv46WGPH9Jl/ux3itGF+MjrUv+U6LoW
-FSMmkuJqO6lVhnCwKumR7b6BCCYiyxszceRGwnKi60i74Vr0W50Yku+m5y1xQPzt
-v8XJQ0pHZWsr9KRLvnq3w5fUb0H03Q==
-=l6IT
+iQEzBAEBCgAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAlzDqyAACgkQf4qgY6Fc
+SQsd+QgAxHbbXNCyVdGRF8aQfSEMjmmAZsAyxUgCiZXtj3jh7/SpBoEqWiVUcS3g
+sSPVpP7271esTVuGJp4MhEX0C9WKVceJy50IE9MQ9zVI0CF2xj//xzDTfJhyrM2g
+jbmUfv4+cd1HgtjL3SO5Phpwic3EGffnaBFMJxG3mKqFmDXVFicG3hkYgalcaXWk
+mH53tP5/cwZmbCtuQ8XZ1x/yh2raXoV/Y6CxBOFd9tTDIfkerTDNrlmtSzdGAP85
+87uEIff6SvAcg8gGAq4jLlkmME1YMu5EPZtNGQeuEdBCY+TX8HYYK69QAxQQHuOW
+khBfR8tFfXhlR12lLFwFVV/rOmkXcA==
+=dvM3
 -----END PGP SIGNATURE-----
 */
