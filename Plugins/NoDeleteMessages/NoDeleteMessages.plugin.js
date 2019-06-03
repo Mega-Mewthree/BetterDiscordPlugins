@@ -30,7 +30,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Updated April 27nd, 2019.
+// Updated May 3rd, 2019.
 
 class NoDeleteMessages {
   getName() {
@@ -43,7 +43,7 @@ class NoDeleteMessages {
     return 'Prevents the client from removing deleted messages and print edited messages (until restart).\nUse ".NoDeleteMessages-deleted-message .da-markup" to edit the CSS of deleted messages.\n\nMy Discord server: https://join-nebula.surge.sh\nDM me @Lucario ☉ ∝ x²#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
   }
   getVersion() {
-    return "0.1.1";
+    return "0.1.2";
   }
   getAuthor() {
     return "Mega_Mewthree (original), ShiiroSan (edit logging)";
@@ -56,6 +56,7 @@ class NoDeleteMessages {
   load() {}
   unload() {}
   start() {
+    //TODO: Patch this
     if (!global.ZeresPluginLibrary) return window.BdApi.alert("Library Missing",`The library plugin needed for ${this.getName()} is missing.<br /><br /> <a href="https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js" target="_blank">Click here to download the library!</a>`);
         if (window.ZeresPluginLibrary) this.initialize();
   }
@@ -134,18 +135,21 @@ class NoDeleteMessages {
       if (!this.editedMessages[evt.message.channel_id]) {
         this.editedMessages[evt.message.channel_id] = [evt.message.id];
         this.editedMessages[evt.message.channel_id][evt.message.id] = [{
-          message: evt.message.content
+          message: evt.message.content,
+          dateTime: new Date().toISOString()
         }];
       } else if (!this.editedMessages[evt.message.channel_id][evt.message.id]) {
         this.editedMessages[evt.message.channel_id][evt.message.id] = [{
-          message: evt.message.content
+          message: evt.message.content,
+          dateTime: new Date().toISOString()
         }];
       } else {
         if (this.editedMessages[evt.message.channel_id][evt.message.id].length > 49) {
           this.editedMessages[evt.message.id][evt.message.id].shift() //I think 50 edits is enough no?
         }
         this.editedMessages[evt.message.channel_id][evt.message.id].push({
-          message: evt.message.content
+          message: evt.message.content,
+          dateTime: new Date().toISOString()
         });
       }
       if (evt.message.channel_id === this.getCurrentChannelID()) this.updateEditedMessages();
@@ -197,10 +201,22 @@ class NoDeleteMessages {
           const edited = this.editedMessages[this.getCurrentChannelID()][messageID];
           const editedClassName = this.findModule("edited")["edited"].split(" ")[0];
           for (let i = 0; i < edited.length; i++) {
-            if (!elem.getElementsByClassName(editedClassName).length) {
-              elem.insertAdjacentHTML("beforeend", `<time class="${editedClassName}">(edited)</time>`);
-            }
             const elementEdited = this.showEdited(edited[i].message);
+
+            var timeElement = elementEdited.children[0].children[0];
+            var actualDate = new Date();
+            var messageEditDate = new Date(edited[i].dateTime);
+            var timeEdit = "";
+            if (actualDate.toLocaleDateString() == messageEditDate.toLocaleDateString()) {
+              timeEdit += "Today at"
+            }
+            else 
+            {
+              timeEdit += messageEditDate.toLocaleDateString();
+            }
+            timeEdit += " " + messageEditDate.toLocaleTimeString();
+            new ZeresPluginLibrary.EmulatedTooltip(timeElement, timeEdit);
+
             elementEdited.classList.add("NoDeleteMessages-edited-message");
             elem.appendChild(elementEdited);
           }
@@ -224,7 +240,6 @@ class NoDeleteMessages {
         parserForFunc.parse(content),
         //TODO: Find a way to implement display time of edit
         createElementFunc.createElement("time", {
-            dateTime: new Date().toISOString(),
             className: editedClassName + " da-edited",
             role: "note"
           },
