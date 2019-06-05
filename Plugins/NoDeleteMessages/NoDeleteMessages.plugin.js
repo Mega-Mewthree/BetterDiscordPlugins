@@ -1,4 +1,4 @@
-//META{"name":"NoDeleteMessages","website":"https://github.com/Mega-Mewthree/BetterDiscordPlugins/tree/master/Plugins/NoDeleteMessages","source":"https://github.com/Mega-Mewthree/BetterDiscordPlugins/tree/master/Plugins/NoDeleteMessages/NoDeleteMessages.plugin.js"}*//
+//META{"name":"NoDeleteMessages","website":"https://github.com/Mega-Mewthree/BetterDiscordPlugins/tree/master/Plugins/AutoStartRichPresence","source":"https://github.com/Mega-Mewthree/BetterDiscordPlugins/tree/master/Plugins/AutoStartRichPresence/AutoStartRichPresence.plugin.js"}*//
 
 /*
 -----BEGIN PGP SIGNED MESSAGE-----
@@ -30,7 +30,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Updated May 3rd, 2019.
+// Updated June 4th, 2019.
 
 class NoDeleteMessages {
   getName() {
@@ -40,50 +40,57 @@ class NoDeleteMessages {
     return "NoDeleteMessages";
   }
   getDescription() {
-    return 'Prevents the client from removing deleted messages and print edited messages (until restart).\nUse ".NoDeleteMessages-deleted-message .da-markup" to edit the CSS of deleted messages.\n\nMy Discord server: https://join-nebula.surge.sh\nDM me @Lucario ☉ ∝ x²#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
+    return 'Prevents the client from removing deleted messages and print edited messages (until restart).\nUse the CSS setting of this plugin to edit the CSS of deleted messages (BD\'s Custom CSS will NOT work), using "<DELETED_MESSAGE>" as the selector for a deleted message. This selector is applied to the element containing the message-xxxxxx class that is a deleted message. Example usage of CSS: "<DELETED_MESSAGE> { background: rgba(255, 0, 0, 0.1); }"\n\nMy Discord server: https://join-nebula.surge.sh\nDM me @Lucario ☉ ∝ x²#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
   }
   getVersion() {
-    return "0.1.2";
+    return "0.2.0";
   }
   getAuthor() {
     return "Mega_Mewthree (original), ShiiroSan (edit logging)";
   }
   constructor() {
     this.deletedMessages = {};
-    this.editedMessages = [];
+    this.editedMessages = {};
+    this.CSSID = this.generateRandomString(33);
+    this.customCSSID = this.generateRandomString(32);
+    this.deletedMessageClassName = `message-${this.generateRandomString(7)}`;
+    this.editedMessageClassName = `messageCozy-${this.generateRandomString(7)}`;
+    this.settings = {};
     //this.savedMessages = [];
   }
   load() {}
   unload() {}
   start() {
     //TODO: Patch this
-    if (!global.ZeresPluginLibrary) return window.BdApi.alert("Library Missing",`The library plugin needed for ${this.getName()} is missing.<br /><br /> <a href="https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js" target="_blank">Click here to download the library!</a>`);
-        if (window.ZeresPluginLibrary) this.initialize();
+    if (!global.ZeresPluginLibrary) return window.BdApi.alert("Library Missing",`The library plugin needed for ${this.getName()} is missing.\n\nPlease download ZeresPluginLibrary here: https://betterdiscord.net/ghdl?id=2252`);
+    if (window.ZeresPluginLibrary) this.initialize();
   }
   initialize() {
-    window.updateDeletedMessages = () => this.updateDeletedMessages;
+    this.settings = BdApi.loadData("NoDeleteMessages", "settings") || {customCSS: ""};
     ZeresPluginLibrary.PluginUpdater.checkForUpdate(this.getName(), this.getVersion(), `https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Plugins/${this.getName()}/${this.getName()}.plugin.js`);
 
-    BdApi.injectCSS("NoDeleteMessages-CSS", `
-      .NoDeleteMessages-deleted-message .da-markup{
-          color: #F00 !important;
-      }
-      .NoDeleteMessages-deleted-message:not(:hover) img, .NoDeleteMessages-deleted-message:not(:hover) .mention, .NoDeleteMessages-deleted-message:not(:hover) .reactions, .NoDeleteMessages-deleted-message:not(:hover) a {
-            filter: grayscale(100%) !important;
-      }
-      .NoDeleteMessages-deleted-message img, .NoDeleteMessages-deleted-message .mention, .NoDeleteMessages-deleted-message .reactions, .NoDeleteMessages-deleted-message a {
-            transition: filter 0.3s !important;
-      }
-      .NoDeleteMessages-edited-message > .NoDeleteMessages-edited-message:not(:last-child) > .NoDeleteMessages-edited-message, :not(.NoDeleteMessages-edited-message) > .NoDeleteMessages-edited-message {
-        color: rgba(255, 255, 255, 0.5) !important;
-      }
-      .NoDeleteMessages-deleted-message :not(.NoDeleteMessages-edited-message) > .NoDeleteMessages-edited-message, .NoDeleteMessages-deleted-message .NoDeleteMessages-edited-message > .NoDeleteMessages-edited-message:not(:last-child) > .NoDeleteMessages-edited-message {
-        color: rgba(240, 71, 71, 0.5) !important;
-      }
-      .NoDeleteMessages-deleted-message .NoDeleteMessages-edited-message > .NoDeleteMessages-edited-message:last-child > .NoDeleteMessages-edited-message {
+    BdApi.injectCSS(this.CSSID, `
+      .${this.deletedMessageClassName} .da-markup{
         color: #F00 !important;
       }
-    `)
+      .${this.deletedMessageClassName}:not(:hover) img, .${this.deletedMessageClassName}:not(:hover) .mention, .${this.deletedMessageClassName}:not(:hover) .reactions, .${this.deletedMessageClassName}:not(:hover) a {
+        filter: grayscale(100%) !important;
+      }
+      .${this.deletedMessageClassName} img, .${this.deletedMessageClassName} .mention, .${this.deletedMessageClassName} .reactions, .${this.deletedMessageClassName} a {
+        transition: filter 0.3s !important;
+      }
+      .${this.editedMessageClassName} > .${this.editedMessageClassName}:not(:last-child) > .${this.editedMessageClassName}, :not(.${this.editedMessageClassName}) > .${this.editedMessageClassName} {
+        color: rgba(255, 255, 255, 0.5) !important;
+      }
+      .${this.deletedMessageClassName} :not(.${this.editedMessageClassName}) > .${this.editedMessageClassName}, .${this.deletedMessageClassName} .${this.editedMessageClassName} > .${this.editedMessageClassName}:not(:last-child) > .${this.editedMessageClassName} {
+        color: rgba(240, 71, 71, 0.5) !important;
+      }
+      .${this.deletedMessageClassName} .${this.editedMessageClassName} > .${this.editedMessageClassName}:last-child > .${this.editedMessageClassName} {
+        color: #F00 !important;
+      }
+    `);
+
+    BdApi.injectCSS(this.customCSSID, this.settings.customCSS.replace(/<DELETED_MESSAGE>/g, `.${this.deletedMessageClassName}`));
 
     ZeresPluginLibrary.Patcher.instead(this.getName(), ZeresPluginLibrary.WebpackModules.find(m => m.dispatch), "dispatch", (thisObject, args, originalFunction) => {
       let shouldFilter = this.filter(args[0]);
@@ -97,12 +104,22 @@ class NoDeleteMessages {
     });
     console.log("NoDeleteMessages has started!");
     ZeresPluginLibrary.Toasts.success("NoDeleteMessages has started!");
+    this.initialized = true;
   }
   stop() {
     this.deletedMessages = {};
-    this.editedMessages = [];
-    BdApi.clearCSS("NoDeleteMessages-CSS");
+    this.editedMessages = {};
+    BdApi.clearCSS(this.CSSID);
+    BdApi.clearCSS(this.customCSSID);
     ZeresPluginLibrary.Patcher.unpatchAll(this.getName());
+  }
+  generateRandomString(length) {
+    let text = "";
+    const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    for (let i = 0; i < length; i++) {
+      text += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+    return text;
   }
   filter(evt) {
     if (evt.type === "MESSAGE_DELETE") {
@@ -181,7 +198,7 @@ class NoDeleteMessages {
       try {
         const messageID = ZeresPluginLibrary.ReactTools.getOwnerInstance(elem).props.message.id;
         if (channelDeletedMessages.includes(messageID)) {
-          elem.classList.add("NoDeleteMessages-deleted-message");
+          elem.classList.add(this.deletedMessageClassName);
         }
       } catch (e) {}
     });
@@ -197,7 +214,7 @@ class NoDeleteMessages {
           elem.getElementsByClassName(markupClassName)[0].remove();
         const messageID = ZeresPluginLibrary.ReactTools.getOwnerInstance(elem).props.message.id;
         if (channelEditedMessages[messageID]) {
-          elem.classList.add("NoDeleteMessages-edited-message");
+          elem.classList.add(this.editedMessageClassName);
           const edited = this.editedMessages[this.getCurrentChannelID()][messageID];
           const editedClassName = this.findModule("edited")["edited"].split(" ")[0];
           for (let i = 0; i < edited.length; i++) {
@@ -210,14 +227,14 @@ class NoDeleteMessages {
             if (actualDate.toLocaleDateString() == messageEditDate.toLocaleDateString()) {
               timeEdit += "Today at"
             }
-            else 
+            else
             {
               timeEdit += messageEditDate.toLocaleDateString();
             }
             timeEdit += " " + messageEditDate.toLocaleTimeString();
             new ZeresPluginLibrary.EmulatedTooltip(timeElement, timeEdit);
 
-            elementEdited.classList.add("NoDeleteMessages-edited-message");
+            elementEdited.classList.add(this.editedMessageClassName);
             elem.appendChild(elementEdited);
           }
         }
@@ -235,7 +252,7 @@ class NoDeleteMessages {
 
     renderFunc.render(
       createElementFunc.createElement("div", {
-          className: this.findModule("markup")["markup"].split(" ")[0] + " NoDeleteMessages-edited-message"
+          className: this.findModule("markup")["markup"].split(" ")[0] + ` ${this.editedMessageClassName}`
         },
         parserForFunc.parse(content),
         //TODO: Find a way to implement display time of edit
@@ -253,9 +270,9 @@ class NoDeleteMessages {
   }
 
   findModule(properties) {
-    if (typeof properties == "string") { //search for an unique property
+    if (typeof properties === "string") { //search for an unique property
       return ZeresPluginLibrary.WebpackModules.find(module => module[properties] != undefined);
-    } else {//search multiple properties
+    } else { //search multiple properties
       return ZeresPluginLibrary.WebpackModules.find(module => properties.every(property => module[property] != undefined));
     }
   }
@@ -263,18 +280,42 @@ class NoDeleteMessages {
   getCurrentChannelID() {
     return ZeresPluginLibrary.DiscordModules.SelectedChannelStore.getChannelId();
   }
+
+  updateCustomCSS(css) {
+    this.settings.customCSS = css;
+    BdApi.clearCSS(this.customCSSID);
+    BdApi.injectCSS(this.customCSSID, this.settings.customCSS.replace(/<DELETED_MESSAGE>/g, `.${this.deletedMessageClassName}`));
+  }
+
+  updateSettings() {
+    BdApi.saveData("NoDeleteMessages", "settings", this.settings);
+  }
+
+  getSettingsPanel() {
+    if (!this.initialized) return;
+    this.settings = BdApi.loadData("NoDeleteMessages", "settings") || {customCSS: ""};
+    const panel = $("<form>").addClass("form").css("width", "100%");
+		if (this.initialized) this.generateSettings(panel);
+		return panel[0];
+  }
+
+  generateSettings(panel) {
+    new window.ZeresPluginLibrary.Settings.SettingGroup("Configuration", {collapsible: false, shown: true, callback: () => {this.updateSettings();}}).appendTo(panel).append(
+      new window.ZeresPluginLibrary.Settings.Textbox("Custom CSS", "Custom CSS that is compatible with this plugin.", "", val => {this.updateCustomCSS(val);})
+		);
+  }
 }
 
 /*
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCgAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAlz2DtgACgkQf4qgY6Fc
-SQuXkQgAiG9uciJrOrpiGw8mOiK8XshfumAiFlZu/9qtiMPrkj0d4EIXxh8D+yvF
-J79lsZnuNTe45GabOAVaSES9Zfcnvlv6xgiJsdBTtZXkopTyRdx2x9+W7nek0oJj
-vk4RZSPMU2lZxK4ZX2pvMVe4Q7mYplrNqY6uBvCY/ULwlmuYiFFTo8M1uOzffM4y
-j9c4hQBJeYl8mtr8JoK4J7JcACYCDWjDmy7TiknMEloTZ/mAcxwnMATQkskYYhiI
-nSHGh2NNVdE0JRAlxiB+3tKzw4CIwWS6LRpezNttCXTCVp6RhTFPJ7G7+mDPq+rB
-f/sAHdpZYTGZ3OWQ76hXumWMmkD4fA==
-=hQqh
+iQEzBAEBCgAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAlz3PPkACgkQf4qgY6Fc
+SQumbggAsNIzrXr+OmnZnJAxbKoCgRKzSF8KrTTG+4l/gxfeuHReYZ1fAeGrZEiL
+6grBY8BoKAPswAy1wHTYL3GehKB8xjVK1JJINo2/jgitojryHluQCa1qORsXFFSn
+YgD+RNJzngp/zmDKdH07lZ51zLEkZu2y/akCMwBUAeBISi4y6rnMNuTLfJjBe/z6
+3IwkvItsmdRSIXgNjSEsfAFLPSIjm2gEc3uLsJ5ke79X6hmR+FOX/gHJ84+tOsmB
+iEOo6K1te/pLYpZXeLt12WgNvfEz8Iyct9b3PKc7iI1k1qh9JK2qtUPZ1lZ/SQiO
+PMnh5zSVZnxpY7THtuzw0O4mn53zzw==
+=H3Lt
 -----END PGP SIGNATURE-----
 */
