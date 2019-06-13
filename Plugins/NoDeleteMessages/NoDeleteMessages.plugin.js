@@ -30,7 +30,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Updated June 12th, 2019.
+// Updated June 13th, 2019.
 
 class NoDeleteMessages {
   getName() {
@@ -40,10 +40,10 @@ class NoDeleteMessages {
     return "NoDeleteMessages";
   }
   getDescription() {
-    return 'Prevents the client from removing deleted messages and print edited messages (until restart).\nUse the CSS setting of this plugin to edit the CSS of deleted messages (BD\'s Custom CSS will NOT work), using "<DELETED_MESSAGE>" as the selector for a deleted message. This selector is applied to the element containing the message-xxxxxx class that is a deleted message. Example usage of CSS: "<DELETED_MESSAGE> { background: rgba(255, 0, 0, 0.1); }"\n\nMy Discord server: https://join-nebula.surge.sh\nDM me @Lucario ☉ ∝ x²#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
+    return 'Prevents the client from removing deleted messages and print edited messages (until restart).\nUse .NoDeleteMessages-deleted-message .markup to edit the CSS of deleted messages (and .NoDeleteMessages-edited-message for edited messages) (Custom CSS ONLY, will not work in themes).\n\nMy Discord server: https://join-nebula.surge.sh\nCreate an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
   }
   getVersion() {
-    return "0.2.1";
+    return "0.2.2";
   }
   getAuthor() {
     return "Mega_Mewthree (original), ShiiroSan (edit logging)";
@@ -68,6 +68,24 @@ class NoDeleteMessages {
   initialize() {
     this.settings = BdApi.loadData("NoDeleteMessages", "settings") || {customCSS: ""};
     ZeresPluginLibrary.PluginUpdater.checkForUpdate(this.getName(), this.getVersion(), `https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Plugins/${this.getName()}/${this.getName()}.plugin.js`);
+    this.replaceCustomCSS();
+
+    const that = this;
+    this.oldCoreInitSettings = Core.prototype.initSettings;
+    Core.prototype.initSettings = function (...args) {
+      that.oldCoreInitSettings.apply(this, args);
+      that.replaceCustomCSS();
+    };
+    this.oldDetachedEditorUpdate = V2C_CssEditorDetached.prototype.updateCss;
+    V2C_CssEditorDetached.prototype.updateCss = function (...args) {
+      that.oldDetachedEditorUpdate.apply(this, args);
+      that.replaceCustomCSS();
+    };
+    this.oldEditorUpdate = V2C_CssEditor.prototype.updateCss;
+    V2C_CssEditor.prototype.updateCss = function (...args) {
+      that.oldEditorUpdate.apply(this, args);
+      that.replaceCustomCSS();
+    };
 
     BdApi.injectCSS(this.CSSID, `
       [${this.deletedMessageAttribute}] .da-markup{
@@ -109,6 +127,10 @@ class NoDeleteMessages {
   stop() {
     this.deletedMessages = {};
     this.editedMessages = {};
+    Core.prototype.initSettings = this.oldCoreInitSettings;
+    V2C_CssEditorDetached.prototype.updateCss = this.oldDetachedEditorUpdate;
+    V2C_CssEditor.prototype.updateCss = this.oldEditorUpdate;
+    this.resetCustomCSS();
     BdApi.clearCSS(this.CSSID);
     BdApi.clearCSS(this.customCSSID);
     ZeresPluginLibrary.Patcher.unpatchAll(this.getName());
@@ -120,6 +142,18 @@ class NoDeleteMessages {
       text += possible.charAt(Math.floor(Math.random() * possible.length));
     }
     return text;
+  }
+  replaceCustomCSS() {
+    const customCSS = document.getElementById("customcss");
+    if (customCSS) {
+      customCSS.innerHTML = customCSS.innerHTML.replace(/\.NoDeleteMessages\-deleted\-message/g, `[${this.deletedMessageAttribute}]`).replace(/\.NoDeleteMessages\-edited\-message/g, `[${this.editedMessageAttribute}]`);
+    }
+  }
+  resetCustomCSS() {
+    const customCSS = document.getElementById("customcss");
+    if (customCSS) {
+      customCSS.innerHTML = customCSS.innerHTML.split(`[${this.deletedMessageAttribute}]`).join(".NoDeleteMessages-deleted-message").split(`[${this.editedMessageAttribute}]`).join(".NoDeleteMessages-edited-message");
+    }
   }
   filter(evt) {
     if (evt.type === "MESSAGE_DELETE") {
@@ -302,7 +336,7 @@ class NoDeleteMessages {
 
   generateSettings(panel) {
     new window.ZeresPluginLibrary.Settings.SettingGroup("Configuration", {collapsible: false, shown: true, callback: () => {this.updateSettings();}}).appendTo(panel).append(
-      new window.ZeresPluginLibrary.Settings.Textbox("Custom CSS", "Custom CSS that is compatible with this plugin.", (this.settings && this.settings.customCSS) || "", val => {this.updateCustomCSS(val);})
+      new window.ZeresPluginLibrary.Settings.Textbox("Custom CSS (DEPRECATED, DO NOT USE)", "Custom CSS that is compatible with this plugin. (DEPRECATED, DO NOT USE)", (this.settings && this.settings.customCSS) || "", val => {this.updateCustomCSS(val);})
 		);
   }
 }
@@ -310,13 +344,13 @@ class NoDeleteMessages {
 /*
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCgAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAl0B5VEACgkQf4qgY6Fc
-SQvpcggAmM66r3tmB3jK/ktu+j9MnJkcbPO7LDGpcH9xDt7BRhPpI/gvplRX9Pnn
-lPBNZ1H8CdtcfehAu7xdO9Cz3azLk9mEdagdCyza1nLX6e0TxfPugREMXREZ4Eq2
-1Lj39swcZjeLCQvp+aCfW2KGG23tb0Vcys100NxUIwi5F5nsfOKOS/jpO26B3Mat
-y32LcRMjFadclxgrJ1EHSOBWnha+pB7X6fewYFwDe6frDKIu/93MG5iEtu2WOYpc
-l1M/6uc8B04a0F/fCWdX8b3KjzKGTmeNZzEl1QN4gQWYvLO236Pgy0/Nbq35zkWs
-fRQiZEC4bKoZ4iF4tmPTj5+8KiktDA==
-=i0Jd
+iQEzBAEBCgAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAl0B/WYACgkQf4qgY6Fc
+SQv5YQgAjKm8wwN781po2CNW5abg0pDAmNzwTuzTtt5sP/7+OWspUVRyvlGGjiBC
+XthqfMObuZxUF56cWf7MG5QP2tsy48/u+SXvc3gTbWsldwnJX8nM/wJOXIDb2Qat
+tP5kcdIkVFXX5iw1/menbD51/6CVWNxWdn+5lsFl8asXFI3tDmbZ/dMgdnmgFbft
+wlNvQxyrNWod4WoGcH7fuFQPaHmau7lWfgxkTt7z0a+GJavQByR3j/o1gHwKzPav
+dDusa07KKwg13bt+QwaL/2LenOwWNvBDgWlEqZ4LalaEFyutb7bC1u8T3Ra2NXXs
+ikJWtfZJfYmM7fwjvItaYnCjtpEm8g==
+=uWAG
 -----END PGP SIGNATURE-----
 */
