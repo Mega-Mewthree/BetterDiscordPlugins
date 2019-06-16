@@ -30,7 +30,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Updated June 13th, 2019.
+// Updated June 16th, 2019.
 
 class NoDeleteMessages {
   getName() {
@@ -43,7 +43,7 @@ class NoDeleteMessages {
     return 'Prevents the client from removing deleted messages and print edited messages (until restart).\nUse .NoDeleteMessages-deleted-message .markup to edit the CSS of deleted messages (and .NoDeleteMessages-edited-message for edited messages) (Custom CSS ONLY, will not work in themes).\n\nMy Discord server: https://join-nebula.surge.sh\nCreate an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
   }
   getVersion() {
-    return "0.2.2";
+    return "0.2.3";
   }
   getAuthor() {
     return "Mega_Mewthree (original), ShiiroSan (edit logging)";
@@ -67,7 +67,7 @@ class NoDeleteMessages {
   }
   initialize() {
     this.settings = BdApi.loadData("NoDeleteMessages", "settings") || {customCSS: ""};
-    ZeresPluginLibrary.PluginUpdater.checkForUpdate(this.getName(), this.getVersion(), `https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Plugins/${this.getName()}/${this.getName()}.plugin.js`);
+    ZeresPluginLibrary.PluginUpdater.checkForUpdate(this.getName(), this.getVersion(), `https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordTrustedUnofficialPlugins/master/${this.getName()}/${this.getName()}.plugin.js`);
     this.replaceCustomCSS();
 
     const that = this;
@@ -344,13 +344,13 @@ class NoDeleteMessages {
 /*
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCgAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAl0B/WYACgkQf4qgY6Fc
-SQv5YQgAjKm8wwN781po2CNW5abg0pDAmNzwTuzTtt5sP/7+OWspUVRyvlGGjiBC
-XthqfMObuZxUF56cWf7MG5QP2tsy48/u+SXvc3gTbWsldwnJX8nM/wJOXIDb2Qat
-tP5kcdIkVFXX5iw1/menbD51/6CVWNxWdn+5lsFl8asXFI3tDmbZ/dMgdnmgFbft
-wlNvQxyrNWod4WoGcH7fuFQPaHmau7lWfgxkTt7z0a+GJavQByR3j/o1gHwKzPav
-dDusa07KKwg13bt+QwaL/2LenOwWNvBDgWlEqZ4LalaEFyutb7bC1u8T3Ra2NXXs
-ikJWtfZJfYmM7fwjvItaYnCjtpEm8g==
-=uWAG
+iQEzBAEBCgAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAl0Gh3MACgkQf4qgY6Fc
+SQvxsAgA1RWTgi22LbW27/xoCigEM6STZZmHjaafpltYBNh0N4S5HKitRvXxq46z
+NzMjAnHjEZK0YAhO10gS7biTWhlU0pT2oMpzCGfAHx6LyPS84pgZOOV5cpNuOGbe
+8lmyzLXDAJsRTjF6NEYRAgB01rQidY9M+k1X35fKevqm9gNrGnQCez5YjTHkQnjy
+98QkNBpFBCjH4VmHdnScDEloRFnRKwcGzBj1pgH56zsCpfubXUiktLfDY8ipcB24
+3+Hn1L7yddRytO13svcfNWwCbyv9LTxRoYpzs4E6cjTe1Lk9C01qnvE8qzJ0XT6P
+MN1aHHWa6QF9O765ye5yrOaqNHnkMg==
+=AwN8
 -----END PGP SIGNATURE-----
 */
