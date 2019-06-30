@@ -2,14 +2,14 @@
 
 /*
 -----BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA256
+Hash: SHA512
 
 */
 
 /*
 MIT License
 
-Copyright (c) 2018 Mega_Mewthree
+Copyright (c) 2018-2019 Mega_Mewthree
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -31,7 +31,7 @@ SOFTWARE.
 */
 
 // Created July 28th, 2018.
-// Updated August 3rd, 2018.
+// Updated June 29th, 2019.
 
 class FixUnreadChatScroller {
   getName() {
@@ -41,13 +41,13 @@ class FixUnreadChatScroller {
     return "FixUnreadChatScroller";
   }
   getDescription() {
-    return 'Fixes channels not getting marked as read upon scrolling to the bottom.\n\nMy Discord server: https://nebula.mooo.info/discord-invite\nDM me @Lucario 🌌 V5.0.0#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
+    return 'MUST ENABLE NORMALIZED CLASSES!\nFixes channels not getting marked as read upon scrolling to the bottom.\n\nMy Discord server: https://nebula.mooo.info/discord-invite\nDM me @Lucario ☉ ∝ x²#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
   }
   getVersion() {
-    return "0.0.2";
+    return "0.0.3";
   }
   getAuthor() {
-    return "Mega_Mewthree"; //Current Discord account: @Lucario 🌌 V5.0.0#7902 (438469378418409483)
+    return "Mega_Mewthree"; //Current Discord account: @Lucario ☉ ∝ x²#7902 (438469378418409483)
   }
   constructor() {}
   load() {}
@@ -69,18 +69,39 @@ class FixUnreadChatScroller {
     this.active = false;
   }
   initialize() {
-    PluginUtilities.checkForUpdate(this.getName(), this.getVersion(), `https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Plugins/${this.getName()}/${this.getName()}.plugin.js`);
+    try {
+      (window.ZeresPluginLibrary && window.ZeresPluginLibrary.PluginUtilities && window.ZeresPluginLibrary.PluginUtilities.checkForUpdate || PluginUtilities && PluginUtilities.checkForUpdate)(this.getName(), this.getVersion(), `https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Plugins/${this.getName()}/${this.getName()}.plugin.js`);
+    } catch (e) {
+      console.error(e);
+    }
     this.active = true;
-    PluginUtilities.showToast("FixUnreadChatScroller has started!");
+    const scroller = document.querySelector(".da-messagesWrapper .da-scroller");
+    if (scroller) {
+      try {
+        if (Math.abs(scroller.scrollTop - scroller.scrollHeight + scroller.offsetHeight) < 175) {
+          scroller.scrollTop = scroller.scrollHeight - scroller.offsetHeight;
+        }
+        scroller.onscroll = () => {
+          if (!this.active) return;
+          if (Math.abs(scroller.scrollTop - scroller.scrollHeight + scroller.offsetHeight) < 2) {
+            InternalUtilities.WebpackModules.find(m => m.localAck).ack(DiscordModules.SelectedChannelStore.getChannelId());
+          }
+        };
+      } catch (e) {}
+    }
+    BdApi.showToast("FixUnreadChatScroller has started!");
   }
   observer({addedNodes}) {
     let len = addedNodes.length;
     let change;
     while (len--){
       change = addedNodes[len];
-      if (change.classList && change.classList.contains("messagesWrapper-3lZDfY")) {
-        const scroller = document.querySelector(".messages-3amgkR.scroller");
+      if (change.classList && change.classList.contains("da-messagesWrapper")) {
+        const scroller = document.querySelector(".da-messagesWrapper .da-scroller");
         try {
+          if (Math.abs(scroller.scrollTop - scroller.scrollHeight + scroller.offsetHeight) < 175) {
+            scroller.scrollTop = scroller.scrollHeight - scroller.offsetHeight;
+          }
           scroller.onscroll = () => {
             if (!this.active) return;
             if (Math.abs(scroller.scrollTop - scroller.scrollHeight + scroller.offsetHeight) < 2) {
@@ -97,13 +118,13 @@ class FixUnreadChatScroller {
 /*
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAltlLD0ACgkQf4qgY6Fc
-SQsXKAf7BAA/lLHwWVlBIhzwz+CQicxt2cM6fiG/q5a7oXCIdqH6vAghmr9keC72
-JM9IdJySti8E1GC/cTFc3mzLRghXw+hUW1XjG/f85+UTD4WrH5xT5Vpqd4J6JyKT
-VIUB7vlU+vY4/ICkPFn9ki6XQsFwcWYoaD8TVVfoDM8At0PQFBhYcNrihzFx6UkJ
-8lphP9uG4YMOoxxYHi3JO3Ot/pk+Vl/7OxEWUMQ9ArUqT7200/lytg3aqJJEmZKd
-GG8lpdxscKHWlmL8VLa2g8kRxxf7GkeJr0oQbHuDQP0Q5JxXpwD6ERI1aX4CVT3H
-KL9pfDnbYnrl9g4/MgBLj+BeEWTy8A==
-=lBDv
+iQEzBAEBCgAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAl0YSz0ACgkQf4qgY6Fc
+SQtuHggAvU3JoeeX41lJRqahbGsKFN3WSROvCYH+4dr3zk+d/2Re19vLKEkXh5yG
+LgJWAppJdqzAHkDZukZBVbsyUqfdq+QY8U2ef4E2IWXOoBCx1jeUG/kkYJUYQGER
+6p7iOkVkUUWX3YRcFNghK6hRd9oGt8TZZTYSL85iDt9xCBP6Bv4NKG++5bb27lnp
+Xru5LHLcxSPbrcqxkDZu1WURSgjLKHHiKAqOHDwy8KlKApG6SSYhLnpCYafDIimt
+371HAAapDAONAgCKdBnE1P64axla82hYG6oqbAhqY+YSnWd/cWVo2Vd9jzAPzpDq
+YuFftB+xoPscjEG/ptp6pySKmrW/RA==
+=V9+X
 -----END PGP SIGNATURE-----
 */
