@@ -1,4 +1,4 @@
-//META{"name":"AlwaysMentionEveryone","website":"https://github.com/Mega-Mewthree/BetterDiscordPlugins/Plugins/AlwaysMentionEveryone","source":"https://github.com/Mega-Mewthree/BetterDiscordPlugins/Plugins/AlwaysMentionEveryone/AlwaysMentionEveryone.plugin.js"}*//
+//META{"name":"AlwaysMentionEveryone","website":"https://github.com/Mega-Mewthree/BetterDiscordPlugins/tree/master/Plugins/AlwaysMentionEveryone","source":"https://github.com/Mega-Mewthree/BetterDiscordPlugins/blob/master/Plugins/AlwaysMentionEveryone/AlwaysMentionEveryone.plugin.js"}*//
 
 /*
 -----BEGIN PGP SIGNED MESSAGE-----
@@ -33,62 +33,68 @@ SOFTWARE.
 // Created July 19th, 2018.
 
 class AlwaysMentionEveryone {
-  getName() {
-    return "AlwaysMentionEveryone";
-  }
-  getShortName() {
-    return "AlwaysMentionEveryone";
-  }
-  getDescription() {
-    return 'Discord will no longer confirm if you want to mention everyone in large servers.\nRequires "Normalize Classes" to be enabled in Zere\'s Fork settings.\n\nMy Discord server: https://join-nebula.surge.sh\nDM me @Lucario 🌌 V5.0.0#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
-  }
-  getVersion() {
-    return "0.0.2";
-  }
-  getAuthor() {
-    return "Mega_Mewthree"; //Current Discord account: @Lucario 🌌 V5.0.0#7902 (438469378418409483) Wonder how long this one will last...
-  }
-  constructor() {
-
-  }
-  load() {}
-  unload() {}
-  start() {
-    let libraryScript = document.getElementById("zeresLibraryScript");
-    if (!window.ZeresLibrary || window.ZeresLibrary.isOutdated) {
-      if (libraryScript) libraryScript.parentElement.removeChild(libraryScript);
-      libraryScript = document.createElement("script");
-      libraryScript.setAttribute("type", "text/javascript");
-      libraryScript.setAttribute("src", "https://rauenzi.github.io/BetterDiscordAddons/Plugins/PluginLibrary.js");
-      libraryScript.setAttribute("id", "zeresLibraryScript");
-      document.head.appendChild(libraryScript);
-    }
-    if (window.ZeresLibrary) this.initialize();
-    else libraryScript.addEventListener("load", () => {
-      this.initialize();
-    });
-  }
-  initialize() {
-    PluginUtilities.checkForUpdate(this.getName(), this.getVersion(), `https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Plugins/${this.getName()}/${this.getName()}.plugin.js`);
-    PluginUtilities.showToast("AlwaysMentionEveryone has started!");
-  }
-  stop() {
-
-  }
-  observer({
-    addedNodes
-  }) {
-    let len = addedNodes.length;
-    let change;
-    while (len--) {
-      change = addedNodes[len];
-      if (change.classList) {
-        if (change.classList.contains("da-popout") && change.children[0].classList.contains("da-everyonePopout")) {
-          return change.children[0].children[0].children[1].children[2].children[1].children[0].click();
-        }
-      }
-    }
-  }
+	getName() {
+		return 'AlwaysMentionEveryone';
+	}
+	getShortName() {
+		return 'AlwaysMentionEveryone';
+	}
+	getDescription() {
+		return 'Discord will no longer confirm if you want to mention everyone in large servers.\nRequires "Normalize Classes" to be enabled in Zere\'s Fork settings.\n\nMy Discord server: https://join-nebula.surge.sh\nDM me @Lucario 🌌 V5.0.0#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.';
+	}
+	getVersion() {
+		return '0.0.2';
+	}
+	getAuthor() {
+		return 'Mega_Mewthree'; //Current Discord account: @Lucario 🌌 V5.0.0#7902 (438469378418409483) Wonder how long this one will last...
+	}
+	constructor() {}
+	load() {}
+	unload() {}
+	start() {
+		if (!global.ZeresPluginLibrary) {
+			return window.BdApi.alert(
+				'Library Missing',
+				`The library plugin needed for ${this.getName()} is missing.<br /><br /> <a href="https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js" target="_blank">Click here to download the library!</a>`
+			);
+			ZLibrary.PluginUpdater.checkForUpdate(
+				this.getName(),
+				this.getVersion(),
+				'LINK_TO_RAW_CODE'
+			);
+		}
+		if (global.ZeresPluginLibrary) {
+			this.initialize();
+		} else {
+			libraryScript.addEventListener('load', () => {
+				this.initialize();
+			});
+		}
+	}
+	initialize() {
+		PluginUtilities.checkForUpdate(
+			this.getName(),
+			this.getVersion(),
+			`https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Plugins/${this.getName()}/${this.getName()}.plugin.js`
+		);
+		PluginUtilities.showToast('AlwaysMentionEveryone has started!');
+	}
+	stop() {}
+	observer({ addedNodes }) {
+		let len = addedNodes.length;
+		let change;
+		while (len--) {
+			change = addedNodes[len];
+			if (change.classList) {
+				if (
+					change.classList.contains('da-popout') &&
+					change.children[0].classList.contains('da-everyonePopout')
+				) {
+					return change.children[0].children[0].children[1].children[2].children[1].children[0].click();
+				}
+			}
+		}
+	}
 }
 
 /*
