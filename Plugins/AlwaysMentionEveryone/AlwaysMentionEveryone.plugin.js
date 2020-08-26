@@ -52,15 +52,11 @@ class AlwaysMentionEveryone {
 	load() {}
 	unload() {}
 	start() {
+    let libraryScript = document.getElementById("ZLibraryScript");
 		if (!global.ZeresPluginLibrary) {
 			return window.BdApi.alert(
 				'Library Missing',
 				`The library plugin needed for ${this.getName()} is missing.<br /><br /> <a href="https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js" target="_blank">Click here to download the library!</a>`
-			);
-			ZLibrary.PluginUpdater.checkForUpdate(
-				this.getName(),
-				this.getVersion(),
-				'LINK_TO_RAW_CODE'
 			);
 		}
 		if (global.ZeresPluginLibrary) {
@@ -72,12 +68,12 @@ class AlwaysMentionEveryone {
 		}
 	}
 	initialize() {
-		PluginUtilities.checkForUpdate(
+		ZLibrary.PluginUpdater.checkForUpdate(
 			this.getName(),
 			this.getVersion(),
 			`https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Plugins/${this.getName()}/${this.getName()}.plugin.js`
 		);
-		PluginUtilities.showToast('AlwaysMentionEveryone has started!');
+		BdApi.showToast('AlwaysMentionEveryone has started!');
 	}
 	stop() {}
 	observer({ addedNodes }) {
