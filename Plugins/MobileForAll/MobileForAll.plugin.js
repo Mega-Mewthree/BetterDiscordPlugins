@@ -24,7 +24,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Updated April 3rd, 2020.
+// Updated October 26th, 2020.
 
 class MobileForAll {
   getName() {
@@ -37,7 +37,7 @@ class MobileForAll {
     return "Adds mobile indicators for all status types.\nRequired dependency: ZeresPluginLibrary\n\nMy Discord server: https://nebula.mooo.info/discord-invite\nDM me @Lucario ☉ ∝ x²#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.";
   }
   getVersion() {
-    return "1.0.1";
+    return "1.0.2";
   }
   getAuthor() {
     return "Mega_Mewthree"; // Current Discord account: @Lucario ☉ ∝ x²#7902 (438469378418409483)
@@ -70,9 +70,40 @@ class MobileForAll {
   observer({addedNodes, removedNodes, target}) {
     // Added Nodes Section
     if (addedNodes.length > 0) {
+      // console.log(addedNodes);
+      // const modalTargets = [].filter.call(addedNodes, n => /modal/.test(n.className));
+      // if (modalTargets.length > 0) {
+      //   modalTargets.forEach(t => {
+      //     try {
+      //       // TODO: Find User ID
+      //       const userID = window.ZLibrary.ReactTools.getReactProperty(t, "");
+      //       if (!userID) return;
+      //       const userStatus = window.ZLibrary.DiscordModules.UserStatusStore.getState().clientStatuses[userID];
+      //       const platforms = Object.keys(userStatus);
+      //       if (platforms.length === 1 && platforms[0] === "mobile" && userStatus.mobile !== "online") {
+      //         let mysteryElement = t.children[2].children[0].children[0].children[0].children[0].children[0];
+      //         let foreignObject;
+      //         let rect;
+      //
+      //         // LinkProfilePicture compatability
+      //         if (mysteryElement.tagName === "A") {
+      //           foreignObject = mysteryElement.children[0];
+      //           rect = mysteryElement.children[0];
+      //         }
+      //         foreignObject = foreignObject.children[0];
+      //         rect = rect.children[1];
+      //
+      //         foreignObject.setAttribute("mask", "url(#svg-mask-avatar-status-mobile-80)");
+      //         rect.setAttribute("mask", "url(#svg-mask-status-online-mobile)");
+      //         rect.setAttribute("height", 24);
+      //         rect.setAttribute("y", 52);
+      //       }
+      //     } catch (e) {}
+      //   });
+      // }
       // Switching Guilds
       const guildSwitchMemberListTargets = Array.from(
-        [].filter.call(addedNodes, n => /members-/.test(n.parentElement && n.parentElement.getAttribute("data-ref-id")))
+        [].filter.call(addedNodes, n => /members-/.test(n.parentElement && n.parentElement.id))
         .flatMap(n => [].slice.call(n.children[1].children))
       );
       const guildMemberListChangeTargets = [].filter.call(addedNodes, n => /member-/.test(n.className));
@@ -80,7 +111,7 @@ class MobileForAll {
       if (guildMemberListTargets.length > 0) {
         guildMemberListTargets.forEach(t => {
           try {
-            const userID = window.ZLibrary.ReactTools.getReactProperty(t, "return.return.return.return.return.return.memoizedProps.user.id");
+            const userID = window.ZLibrary.ReactTools.getReactProperty(t, "return.return.return.return.return.return.return.memoizedProps.user.id");
             if (!userID) return;
             const userStatus = this.getUserStatus(userID);
             if (!userStatus) return;
@@ -118,9 +149,9 @@ class MobileForAll {
       if (guildMemberListUpdateTargets.length > 0) {
         guildMemberListUpdateTargets.forEach(t => {
           try {
-            t = t.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
+            t = t.parentElement.parentElement.parentElement.parentElement;
             if (!/member-/.test(t.className)) return;
-            const userID = window.ZLibrary.ReactTools.getReactProperty(t, "return.return.return.return.return.return.memoizedProps.user.id");
+            const userID = window.ZLibrary.ReactTools.getReactProperty(t, "return.return.return.return.return.return.return.memoizedProps.user.id");
             if (!userID) return;
             const userStatus = this.getUserStatus(userID);
             if (!userStatus) return;
@@ -164,9 +195,9 @@ class MobileForAll {
       if (guildMemberListUpdateTargets.length > 0) {
         guildMemberListUpdateTargets.forEach(t => {
           try {
-            t = target.parentElement.parentElement.parentElement.parentElement.parentElement;
+            t = target.parentElement.parentElement.parentElement.parentElement;
             if (!/member-/.test(t.className)) return;
-            const userID = window.ZLibrary.ReactTools.getReactProperty(t, "return.return.return.return.return.return.memoizedProps.user.id");
+            const userID = window.ZLibrary.ReactTools.getReactProperty(t, "return.return.return.return.return.return.return.memoizedProps.user.id");
             if (!userID) return;
             const userStatus = this.getUserStatus(userID);
             const platforms = Object.keys(userStatus);
