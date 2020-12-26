@@ -1,14 +1,9 @@
 //META{"name":"AutoStartRichPresence","website":"https://github.com/Mega-Mewthree/BetterDiscordPlugins/tree/master/Plugins/AutoStartRichPresence","source":"https://github.com/Mega-Mewthree/BetterDiscordPlugins/blob/master/Plugins/AutoStartRichPresence/AutoStartRichPresence.plugin.js"}*//
 
 /*
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA512
-
-*/
-/*
 MIT License
 
-Copyright (c) 2018-2019 Mega_Mewthree
+Copyright (c) 2018-2020 Mega_Mewthree
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +24,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Updated April 14th, 2019.
+// Updated Dec 25th, 2020.
 
 let RPClient;
 
@@ -2560,6 +2555,7 @@ let RPClient;
   })();
 
   // discordjs/RPC library
+  // Old version modified to add support for buttons
   let RPCClient;
   (() => {
   	// https://github.com/discordjs/RPC
@@ -3581,6 +3577,7 @@ let RPClient;
   					assets,
   					party,
   					secrets,
+  					buttons: args.buttons,
   					instance: !!args.instance,
   				},
   			});
@@ -3698,7 +3695,7 @@ class AutoStartRichPresence {
     return "Auto starts Rich Presence with configurable settings.\nRequired dependency: ZeresPluginLibrary\n\nMy Discord server: https://nebula.mooo.info/discord-invite\nDM me @Lucario ☉ ∝ x²#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.";
   }
   getVersion() {
-    return "1.1.0";
+    return "1.2.0";
   }
   getAuthor() {
     return "Mega_Mewthree"; //Current Discord account: @Lucario ☉ ∝ x²#7902 (438469378418409483)
@@ -3710,6 +3707,7 @@ class AutoStartRichPresence {
   load() {}
   unload() {}
   start() {
+    console.log("Starting ASRP");
     if (typeof window.ZeresPluginLibrary === "undefined") {
       BdApi.showToast('AutoStartRichPresence: Please install "ZeresPluginLibrary" and restart this plugin.', {type: "error"});
     } else {
@@ -3761,24 +3759,18 @@ class AutoStartRichPresence {
         this.client && typeof this.client.removeAllListeners === "function" && this.client.removeAllListeners() && typeof this.client.disconnect === "function" && await this.client.disconnect();
         BdApi.showToast("Rich Presence client ID authentication failed. Make sure your client ID is correct.", {type: "error"});
       });
-      this.client.updatePresence({
-      	details: this.settings.details || undefined,
-      	state: this.settings.state || undefined,
-      	startTimestamp: this.settings.enableStartTime ? this.startTime / 1000 : undefined,
-      	largeImageKey: this.settings.largeImageKey || undefined,
-      	smallImageKey: this.settings.smallImageKey || undefined,
-      	largeImageText: this.settings.largeImageText || undefined,
-      	smallImageText: this.settings.smallImageText || undefined
-      });
-    }, 5000);
-  }
-  updateRichPresence() {
-    if (this.settings.experimentalRPCEventInjection) return this.experimental_updateRichPresence();
-    this.currentTimeout && clearTimeout(this.currentTimeout);
-    this.currentTimeout = setTimeout(() => {
-      if (!this.client || this.currentClientID !== this.settings.clientID) {
-        this.currentClientID = this.settings.clientID;
-        return this.startRichPresence();
+      const buttons = [];
+      if (this.settings.button1Label && this.settings.button1URL) {
+        buttons.push({
+          label: this.settings.button1Label,
+          url: this.settings.button1URL
+        });
+      }
+      if (this.settings.button2Label && this.settings.button2URL) {
+        buttons.push({
+          label: this.settings.button2Label,
+          url: this.settings.button2URL
+        });
       }
       this.client.updatePresence({
       	details: this.settings.details || undefined,
@@ -3787,7 +3779,41 @@ class AutoStartRichPresence {
       	largeImageKey: this.settings.largeImageKey || undefined,
       	smallImageKey: this.settings.smallImageKey || undefined,
       	largeImageText: this.settings.largeImageText || undefined,
-      	smallImageText: this.settings.smallImageText || undefined
+      	smallImageText: this.settings.smallImageText || undefined,
+      	buttons
+      });
+    }, 5000);
+  }
+  updateRichPresence() {
+    this.currentTimeout && clearTimeout(this.currentTimeout);
+    this.currentTimeout = setTimeout(() => {
+      if (this.settings.experimentalRPCEventInjection) return this.experimental_updateRichPresence();
+      if (!this.client || this.currentClientID !== this.settings.clientID) {
+        this.currentClientID = this.settings.clientID;
+        return this.startRichPresence();
+      }
+      const buttons = [];
+      if (this.settings.button1Label && this.settings.button1URL) {
+        buttons.push({
+          label: this.settings.button1Label,
+          url: this.settings.button1URL
+        });
+      }
+      if (this.settings.button2Label && this.settings.button2URL) {
+        buttons.push({
+          label: this.settings.button2Label,
+          url: this.settings.button2URL
+        });
+      }
+      this.client.updatePresence({
+      	details: this.settings.details || undefined,
+      	state: this.settings.state || undefined,
+      	startTimestamp: this.settings.enableStartTime ? this.startTime / 1000 : undefined,
+      	largeImageKey: this.settings.largeImageKey || undefined,
+      	smallImageKey: this.settings.smallImageKey || undefined,
+      	largeImageText: this.settings.largeImageText || undefined,
+      	smallImageText: this.settings.smallImageText || undefined,
+      	buttons
       });
     }, 5000);
   }
@@ -3829,9 +3855,19 @@ class AutoStartRichPresence {
   async experimental_stopRichPresence() {
     if (this.discordSetActivityHandler) {
       const SetActivityModule = BdApi.findModuleByProps("SET_ACTIVITY").SET_ACTIVITY;
+      const setActivity = this.discordSetActivityHandler.bind(SetActivityModule);
+      // Should unset Rich Presence?
+      setActivity({
+        socket: {
+          transport: "ipc"
+        },
+        cmd: "SET_ACTIVITY",
+        args: {
+          pid: require("process").pid,
+        }
+      });
       SetActivityModule.handler = this.discordSetActivityHandler;
-      // I don't know how to unset the Rich Presence yet.
-      return BdApi.showToast("Restart Discord to clear your current presence.", {type: "info"});
+      // return BdApi.showToast("Restart Discord to clear your current presence.", {type: "info"});
     }
   }
   buildActivityObject() {
@@ -3855,6 +3891,7 @@ class AutoStartRichPresence {
         activity: {
           timestamps: {},
           assets: {},
+          buttons: [],
           name: this.rpcClientInfo.name,
           application_id: this.currentClientID
         }
@@ -3881,6 +3918,18 @@ class AutoStartRichPresence {
         activityObject.args.activity.assets.small_text = this.settings.smallImageText;
       }
     }
+    if (this.settings.button1Label && this.settings.button1URL) {
+      activityObject.args.activity.buttons.push({
+        label: this.settings.button1Label,
+        url: this.settings.button1URL
+      });
+    }
+    if (this.settings.button2Label && this.settings.button2URL) {
+      activityObject.args.activity.buttons.push({
+        label: this.settings.button2Label,
+        url: this.settings.button2URL
+      });
+    }
     return activityObject;
   }
   updateSettings() {
@@ -3896,6 +3945,10 @@ class AutoStartRichPresence {
       new window.ZeresPluginLibrary.Settings.Textbox("Small Image Key", "The name of the asset for your small image.", this.settings.smallImageKey || "", val => {this.settings.smallImageKey = val;}),
       new window.ZeresPluginLibrary.Settings.Textbox("Small Image Text", "The text that appears when your small image is hovered over.", this.settings.smallImageText || "", val => {this.settings.smallImageText = val;}),
       new window.ZeresPluginLibrary.Settings.Switch("Enable Start Time", "Displays the amount of time your Rich Presence is enabled.", this.settings.enableStartTime, val => {this.settings.enableStartTime = val;}),
+      new window.ZeresPluginLibrary.Settings.Textbox("Button 1 Label", "Label for button.", this.settings.button1Label || "", val => {this.settings.button1Label = val;}),
+      new window.ZeresPluginLibrary.Settings.Textbox("Button 1 URL", "URL for button.", this.settings.button1URL || "", val => {this.settings.button1URL = val;}),
+      new window.ZeresPluginLibrary.Settings.Textbox("Button 2 Label", "Label for button.", this.settings.button2Label || "", val => {this.settings.button2Label = val;}),
+      new window.ZeresPluginLibrary.Settings.Textbox("Button 2 URL", "URL for button.", this.settings.button2URL || "", val => {this.settings.button2URL = val;}),
       new window.ZeresPluginLibrary.Settings.Switch("Experimental: RPC Event Injection", "Bypasses the use of IPC and hopefully prevents other programs from using their own Rich Presences.", this.settings.experimentalRPCEventInjection, async val => {this.settings.experimentalRPCEventInjection = val; if (val) {await this.stopRichPresence(); await this.experimental_startRichPresence();} else {await this.experimental_stopRichPresence(); await this.startRichPresence();}})
 		);
     let div = document.createElement("div");
@@ -3904,18 +3957,8 @@ class AutoStartRichPresence {
     div = document.createElement("div");
     div.innerHTML = '<a href="https://www.youtube.com/watch?v=JIUOreTNj-o" rel="noreferrer noopener" target="_blank">Click here for a video tutorial of how to set up this plugin!</a>';
     panel[0].appendChild(div);
+    div = document.createElement("div");
+    div.innerHTML = '<a href="https://github.com/Mega-Mewthree/BetterDiscordPlugins/tree/master/Plugins/AutoStartRichPresence#troubleshooting" rel="noreferrer noopener" target="_blank">Click here for troubleshooting.</a>';
+    panel[0].appendChild(div);
   }
 }
-/*
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCgAdFiEEGTGecftnrhRz9oomf4qgY6FcSQsFAlyy3s4ACgkQf4qgY6Fc
-SQuXLQf/a93/99pRdMKERCrpohhb5+VhN7GOhO2EgQaT75/TtzETjNHDk9bq9/uu
-WJDm7hKbDN2eZHomdjNpA97FXkwpoHSNC81TehPqMH0yExx4UjtGkyZwNQzAA1Au
-re9F8pTuyCsUFpVg69edc08kJdXyrgiwf09q+0ZWXCH0+SniJ0+WOhIOIRTXqW73
-VeS1xdUAKY/0jG+Gjh81rJgQXgZvign2rUepeZ4YEpNSzbv4/v4CaO+4BoD1d74D
-qK8O2AOkq+elIE9wLDN4PzUmMfIDRbArcWeso+I86GdPtZu8IfsXxQm0S4i530kt
-fypb/P6y8Xz2EpkUe0vj28Blo1K7Ww==
-=ZlYC
------END PGP SIGNATURE-----
-*/
