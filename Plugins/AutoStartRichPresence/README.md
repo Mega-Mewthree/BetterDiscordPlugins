@@ -22,12 +22,18 @@ DM me `@Lucario ☉ ∝ x²#7902` or create an issue at https://github.com/Mega-
 
 1. You have another application running that has its own Rich Presence, which is conflicting with this plugin. Close all other applications that use Rich Presence and restart the Discord client.
 2. Your computer was not connected to the Internet when the plugin started. Make sure you are connected to the Internet and restart the Discord client.
+3. If it still does not work, enable the experimental RPC event injection switch and restart Discord. (Note: This will prevent all other Rich Presences from being displayed.)
+
+### Images do not appear.
+
+1. Wait 24 hours. Discord may take a while to process your images.
 
 ### The Rich Presence is not showing 10 seconds after it was started, and there are no visible errors.
 
 1. Make sure the plugin is on.
 2. Go to User Settings > Game Activity and turn on Display currently running game as a status message. If it was already on, turn it off, wait 5 seconds, and turn it back on.
+3. Wait 2 hours while your Discord client is continuously open. Sometimes, Discord may take a long time to display or update your Rich Presence.
 
 ### None of these solutions work.
 
-1. Send me a DM or ping me in the BD support server in the #plugins channel.
+1. Send me a DM or ping me in the BD support server in the #plugins channel. Due to excessive DMs from people who can't bother to read this troubleshooting guide, I will only respond if you include the phrase "Mago Berry" in your message along with details about your problem and what you have attempted to do in order to solve it (do not just copy and paste my troubleshooting steps).
