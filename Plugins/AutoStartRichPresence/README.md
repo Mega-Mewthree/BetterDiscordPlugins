@@ -22,7 +22,7 @@ DM me `@Lucario ☉ ∝ x²#7902` or create an issue at https://github.com/Mega-
 
 1. You have another application running that has its own Rich Presence, which is conflicting with this plugin. Close all other applications that use Rich Presence and restart the Discord client.
 2. Your computer was not connected to the Internet when the plugin started. Make sure you are connected to the Internet and restart the Discord client.
-3. If it still does not work, enable the experimental RPC event injection switch and restart Discord. (Note: This will prevent all other Rich Presences from being displayed.)
+3. Ensure that your button labels and URLs are less than 32 characters long.
 
 ### Images do not appear.
 
@@ -32,7 +32,8 @@ DM me `@Lucario ☉ ∝ x²#7902` or create an issue at https://github.com/Mega-
 
 1. Make sure the plugin is on.
 2. Go to User Settings > Game Activity and turn on Display currently running game as a status message. If it was already on, turn it off, wait 5 seconds, and turn it back on.
-3. Wait 2 hours while your Discord client is continuously open. Sometimes, Discord may take a long time to display or update your Rich Presence.
+3. Disable the experimental RPC event injection setting if you have it enabled, and restart Discord.
+4. Wait 3 hours while your Discord client is continuously open. Sometimes, Discord may take a long time to display or update your Rich Presence.
 
 ### None of these solutions work.
 
