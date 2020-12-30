@@ -24,7 +24,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Updated Dec 25th, 2020.
+// Updated Dec 29th, 2020.
 
 let RPClient;
 
@@ -3567,19 +3567,23 @@ let RPClient;
   					spectate: args.spectateSecret,
   				};
   			}
+  			
+  			const activity = {
+  				state: args.state,
+  				details: args.details,
+  				timestamps,
+  				assets,
+  				party,
+  				secrets,
+  				instance: !!args.instance,
+  			}
+  			if (args.buttons.length) {
+  				activity.buttons = args.buttons;
+  			}
 
   			return this.request("SET_ACTIVITY", {
   				pid,
-  				activity: {
-  					state: args.state,
-  					details: args.details,
-  					timestamps,
-  					assets,
-  					party,
-  					secrets,
-  					buttons: args.buttons,
-  					instance: !!args.instance,
-  				},
+  				activity
   			});
   		}
 
@@ -3695,7 +3699,7 @@ class AutoStartRichPresence {
     return "Auto starts Rich Presence with configurable settings.\nRequired dependency: ZeresPluginLibrary\n\nMy Discord server: https://nebula.mooo.info/discord-invite\nDM me @Lucario ☉ ∝ x²#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.";
   }
   getVersion() {
-    return "1.2.0";
+    return "1.2.1";
   }
   getAuthor() {
     return "Mega_Mewthree"; //Current Discord account: @Lucario ☉ ∝ x²#7902 (438469378418409483)
@@ -3813,7 +3817,7 @@ class AutoStartRichPresence {
       	smallImageKey: this.settings.smallImageKey || undefined,
       	largeImageText: this.settings.largeImageText || undefined,
       	smallImageText: this.settings.smallImageText || undefined,
-      	buttons
+      	buttons: buttons.length ? buttons : null
       });
     }, 5000);
   }
@@ -3850,7 +3854,12 @@ class AutoStartRichPresence {
     if (!this.discordSetActivityHandler) this.discordSetActivityHandler = SetActivityModule.handler;
     SetActivityModule.handler = function () {};
     const setActivity = this.discordSetActivityHandler.bind(SetActivityModule);
-    setActivity(this.buildActivityObject());
+    try {
+      await setActivity(this.buildActivityObject());
+    } catch (e) {
+      console.error(e);
+      BdApi.showToast("Failed to set Rich Presence activity.", {type: "error"});
+    }
   }
   async experimental_stopRichPresence() {
     if (this.discordSetActivityHandler) {
@@ -3930,6 +3939,9 @@ class AutoStartRichPresence {
         url: this.settings.button2URL
       });
     }
+    if (!activityObject.args.activity.buttons.length) {
+      delete activityObject.args.activity.buttons;
+    }
     return activityObject;
   }
   updateSettings() {
@@ -3949,7 +3961,7 @@ class AutoStartRichPresence {
       new window.ZeresPluginLibrary.Settings.Textbox("Button 1 URL", "URL for button.", this.settings.button1URL || "", val => {this.settings.button1URL = val;}),
       new window.ZeresPluginLibrary.Settings.Textbox("Button 2 Label", "Label for button.", this.settings.button2Label || "", val => {this.settings.button2Label = val;}),
       new window.ZeresPluginLibrary.Settings.Textbox("Button 2 URL", "URL for button.", this.settings.button2URL || "", val => {this.settings.button2URL = val;}),
-      new window.ZeresPluginLibrary.Settings.Switch("Experimental: RPC Event Injection", "Bypasses the use of IPC and hopefully prevents other programs from using their own Rich Presences.", this.settings.experimentalRPCEventInjection, async val => {this.settings.experimentalRPCEventInjection = val; if (val) {await this.stopRichPresence(); await this.experimental_startRichPresence();} else {await this.experimental_stopRichPresence(); await this.startRichPresence();}})
+      new window.ZeresPluginLibrary.Settings.Switch("Experimental: RPC Event Injection", "Bypasses the use of IPC and hopefully prevents other programs from using their own Rich Presences. Some errors may silently fail, so if something is not working, turn this switch off.", this.settings.experimentalRPCEventInjection, async val => {this.settings.experimentalRPCEventInjection = val; if (val) {await this.stopRichPresence(); await this.experimental_startRichPresence();} else {await this.experimental_stopRichPresence(); await this.startRichPresence();}})
 		);
     let div = document.createElement("div");
     div.innerHTML = '<a href="https://discordapp.com/developers/applications/me" rel="noreferrer noopener" target="_blank">Create or edit your Discord Rich Presence application here!</a>';
