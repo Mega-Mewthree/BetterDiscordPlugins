@@ -24,7 +24,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Updated Dec 29th, 2020.
+// Updated April 3rd, 2021.
 
 let RPClient;
 
@@ -32,6 +32,9 @@ let RPClient;
   const path = require("path");
   const fs = require("fs");
   const EventEmitter = require("events");
+  const {
+	  Buffer
+  } = require("buffer");
 
   // snekfetch library
   let snekfetch;
@@ -3699,7 +3702,7 @@ class AutoStartRichPresence {
     return "Auto starts Rich Presence with configurable settings.\nRequired dependency: ZeresPluginLibrary\n\nMy Discord server: https://nebula.mooo.info/discord-invite\nDM me @Lucario ☉ ∝ x²#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.";
   }
   getVersion() {
-    return "1.2.1";
+    return "1.2.2";
   }
   getAuthor() {
     return "Mega_Mewthree"; //Current Discord account: @Lucario ☉ ∝ x²#7902 (438469378418409483)
@@ -3744,9 +3747,11 @@ class AutoStartRichPresence {
   getSettingsPanel() {
     if (!this.initialized) return;
     this.settings = BdApi.loadData("AutoStartRichPresence", "settings") || {};
-    const panel = $("<form>").addClass("form").css("width", "100%");
-		if (this.initialized) this.generateSettings(panel);
-		return panel[0];
+    const panel = document.createElement("form");
+	panel.classList.add("form");
+	panel.style.setProperty("width", "100%");
+	if (this.initialized) this.generateSettings(panel);
+	return panel;
   }
   async startRichPresence() {
     if (this.settings.experimentalRPCEventInjection) return await this.experimental_startRichPresence();
@@ -3965,12 +3970,14 @@ class AutoStartRichPresence {
 		);
     let div = document.createElement("div");
     div.innerHTML = '<a href="https://discordapp.com/developers/applications/me" rel="noreferrer noopener" target="_blank">Create or edit your Discord Rich Presence application here!</a>';
-    panel[0].appendChild(div);
+    panel.appendChild(div);
     div = document.createElement("div");
     div.innerHTML = '<a href="https://www.youtube.com/watch?v=JIUOreTNj-o" rel="noreferrer noopener" target="_blank">Click here for a video tutorial of how to set up this plugin!</a>';
-    panel[0].appendChild(div);
+    panel.appendChild(div);
     div = document.createElement("div");
     div.innerHTML = '<a href="https://github.com/Mega-Mewthree/BetterDiscordPlugins/tree/master/Plugins/AutoStartRichPresence#troubleshooting" rel="noreferrer noopener" target="_blank">Click here for troubleshooting.</a>';
-    panel[0].appendChild(div);
+    panel.appendChild(div);
   }
 }
+
+module.exports = AutoStartRichPresence;
