@@ -1,6 +1,6 @@
 # AutoStartRichPresence
 
-Automatically starts a custom Rich Presence application when you start Discord.
+Automatically starts a custom Rich Presence application when you start Discord. Now with support for multiple rich presence profiles!
 
 Setup Tutorial: https://www.youtube.com/watch?v=JIUOreTNj-o
 
@@ -22,7 +22,7 @@ DM me `@Lucario ☉ ∝ x²#7902` or create an issue at https://github.com/Mega-
 
 1. You have another application running that has its own Rich Presence, which is conflicting with this plugin. Close all other applications that use Rich Presence and restart the Discord client.
 2. Your computer was not connected to the Internet when the plugin started. Make sure you are connected to the Internet and restart the Discord client.
-3. Ensure that your button labels and URLs are less than 32 characters long.
+3. Ensure that your button labels are less than 32 characters long. The button URLs should not be excessive in length. Test with https://example.com.
 
 ### Images do not appear.
 
@@ -34,6 +34,10 @@ DM me `@Lucario ☉ ∝ x²#7902` or create an issue at https://github.com/Mega-
 2. Go to User Settings > Game Activity and turn on Display currently running game as a status message. If it was already on, turn it off, wait 5 seconds, and turn it back on.
 3. Disable the experimental RPC event injection setting if you have it enabled, and restart Discord.
 4. Wait 3 hours while your Discord client is continuously open. Sometimes, Discord may take a long time to display or update your Rich Presence.
+
+### Buttons do nothing when clicked on.
+
+1. The Discord client does not allow clicking your own buttons. Ask someone else to test them, or use an alternate account.
 
 ### None of these solutions work.
 
