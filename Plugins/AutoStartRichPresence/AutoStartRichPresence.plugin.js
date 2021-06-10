@@ -1,9 +1,26 @@
-//META{"name":"AutoStartRichPresence","website":"https://github.com/Mega-Mewthree/BetterDiscordPlugins/tree/master/Plugins/AutoStartRichPresence","source":"https://github.com/Mega-Mewthree/BetterDiscordPlugins/blob/master/Plugins/AutoStartRichPresence/AutoStartRichPresence.plugin.js"}*//
-
+/**
+ * @name AutoStartRichPresence
+ * @version 2.0.0
+ *
+ * @author Lucario ☉ ∝ x²#7902
+ * @authorId 438469378418409483
+ * @description Auto starts Rich Presence with configurable settings.
+ * Required dependency: [ZeresPluginLibrary](https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js) (Ctrl + S to download)
+ *
+ * Check the website for [troubleshooting/FAQs](https://github.com/Mega-Mewthree/BetterDiscordPlugins/tree/master/Plugins/AutoStartRichPresence#troubleshooting) before requesting support.
+ * DM the author or create an issue for support.
+ *
+ * @updateUrl https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Plugins/AutoStartRichPresence/AutoStartRichPresence.plugin.js
+ * @invite ZYND2Xd
+ * @authorLink https://github.com/Mega-Mewthree/BetterDiscordPlugins/tree/master/Plugins/AutoStartRichPresence
+ * @source https://github.com/Mega-Mewthree/BetterDiscordPlugins/tree/master/Plugins/AutoStartRichPresence
+ * @website https://github.com/Mega-Mewthree/BetterDiscordPlugins/tree/master/Plugins/AutoStartRichPresence
+ * @donate https://www.buymeacoffee.com/lucariodev
+ */
 /*
 MIT License
 
-Copyright (c) 2018-2020 Mega_Mewthree
+Copyright (c) 2018-2021 Mega-Mewthree
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +41,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Updated April 3rd, 2021.
+// Updated June 10th, 2021.
+
+const changelog = {
+  title: "AutoStartRichPresence Updated",
+  version: "2.0.0",
+  changelog: [{
+    title: "Rich presence profiles have been added!",
+    type: "added",
+    items: [
+      "You can now create multiple rich presence configurations and switch between them quickly.",
+      "Your settings have been automatically migrated to a new format that is not compatible with older versions.",
+      "Please report any bugs with the new profile system."
+    ]
+  }]
+};
+
+// Might not be strict enough, but most people are probably not attempting to use weird URLs
+const validButtonURLRegex = /^http(s)?:\/\/[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$/;
 
 let RPClient;
 
@@ -3570,7 +3604,7 @@ let RPClient;
   					spectate: args.spectateSecret,
   				};
   			}
-  			
+
   			const activity = {
   				state: args.state,
   				details: args.details,
@@ -3691,30 +3725,20 @@ let RPClient;
   RPClient = makeClient;
 })();
 
+function versionCompare(a, b) {
+  a = a.toLowerCase().split(/[.-]/).map(x => /\d/.test(x[0]) ? x.padStart(10, "0") : x.padEnd(10, "0")).join("");
+  b = b.toLowerCase().split(/[.-]/).map(x => /\d/.test(x[0]) ? x.padStart(10, "0") : x.padEnd(10, "0")).join("");
+  if (a === b) return 0;
+  return (a < b) ? -1 : 1;
+}
+
 class AutoStartRichPresence {
-  getName() {
-    return "AutoStartRichPresence";
-  }
-  getShortName() {
-    return "AutoStartRichPresence";
-  }
-  getDescription() {
-    return "Auto starts Rich Presence with configurable settings.\nRequired dependency: ZeresPluginLibrary\n\nMy Discord server: https://nebula.mooo.info/discord-invite\nDM me @Lucario ☉ ∝ x²#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.";
-  }
-  getVersion() {
-    return "1.2.2";
-  }
-  getAuthor() {
-    return "Mega_Mewthree"; //Current Discord account: @Lucario ☉ ∝ x²#7902 (438469378418409483)
-  }
   constructor() {
     this.initialized = false;
     this.client = null;
   }
-  load() {}
-  unload() {}
   start() {
-    console.log("Starting ASRP");
+    console.log("Starting AutoStartRichPresence");
     if (typeof window.ZeresPluginLibrary === "undefined") {
       BdApi.showToast('AutoStartRichPresence: Please install "ZeresPluginLibrary" and restart this plugin.', {type: "error"});
     } else {
@@ -3722,114 +3746,107 @@ class AutoStartRichPresence {
     }
   }
   initialize() {
-    if (window.ZeresPluginLibrary.PluginUtilities && typeof window.ZeresPluginLibrary.PluginUtilities.checkForUpdate === "function") {
-      try {
-        window.ZeresPluginLibrary.PluginUtilities.checkForUpdate(this.getName(), this.getVersion(), `https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Plugins/${this.getName()}/${this.getName()}.plugin.js`);
-      } catch (e) {
-        console.error(e);
-      }
-    }
     BdApi.showToast("AutoStartRichPresence has started!");
     this.startTime = Date.now();
     this.settings = BdApi.loadData("AutoStartRichPresence", "settings") || {};
-    this.currentClientID = this.settings.clientID;
+    if (this.settings.clientID || this.settings.details || this.settings.state) {
+      this.migrateData();
+    }
+    this.profiles = BdApi.loadData("AutoStartRichPresence", "profiles") || [];
+    this.session = {
+      editingProfile: this.settings.activeProfileID || 0
+    };
+    this.currentClientID = this.activeProfile?.clientID;
     this.rpcClientInfo = {};
     this.discordSetActivityHandler = null;
-    this.startRichPresence();
+    if (this.currentClientID) {
+      this.startRichPresence();
+    }
+    if (!this.settings.lastChangelogVersionSeen || versionCompare(changelog.version, this.settings.lastChangelogVersionSeen) === 1) {
+      window.ZeresPluginLibrary.Modals.showChangelogModal(changelog.title, changelog.version, changelog.changelog);
+      this.settings.lastChangelogVersionSeen = changelog.version;
+      this.updateSettings();
+    }
     this.initialized = true;
   }
   async stop() {
-    if (this.settings.experimentalRPCEventInjection) await this.experimental_stopRichPresence();
+    if (this.settings.rpcEventInjection) await this.stopRichPresenceInjection();
     await this.stopRichPresence();
     this.initialized = false;
     BdApi.showToast("AutoStartRichPresence has stopped!");
   }
+  get activeProfile() {
+    return this.profiles[this.settings.activeProfileID];
+  }
   getSettingsPanel() {
     if (!this.initialized) return;
     this.settings = BdApi.loadData("AutoStartRichPresence", "settings") || {};
+    this.profiles = BdApi.loadData("AutoStartRichPresence", "profiles") || [];
     const panel = document.createElement("form");
-	panel.classList.add("form");
-	panel.style.setProperty("width", "100%");
-	if (this.initialized) this.generateSettings(panel);
-	return panel;
+  	panel.classList.add("form");
+  	panel.style.setProperty("width", "100%");
+  	if (this.initialized) this.generateSettings(panel);
+  	return panel;
   }
   async startRichPresence() {
-    if (this.settings.experimentalRPCEventInjection) return await this.experimental_startRichPresence();
-    this.currentTimeout && clearTimeout(this.currentTimeout);
-    this.currentTimeout = setTimeout(async () => {
-      this.client && typeof this.client.removeAllListeners === "function" && this.client.removeAllListeners() && typeof this.client.disconnect === "function" && await this.client.disconnect();
-      this.client = RPClient(this.currentClientID);
-      this.client.on("setActivityFailed", e => {
-        console.error(e);
-        BdApi.showToast("Failed to set Rich Presence activity.", {type: "error"});
-      });
-      this.client.on("loginFailed", async e => {
-        console.error(e);
-        this.client && typeof this.client.removeAllListeners === "function" && this.client.removeAllListeners() && typeof this.client.disconnect === "function" && await this.client.disconnect();
-        BdApi.showToast("Rich Presence client ID authentication failed. Make sure your client ID is correct.", {type: "error"});
-      });
-      const buttons = [];
-      if (this.settings.button1Label && this.settings.button1URL) {
-        buttons.push({
-          label: this.settings.button1Label,
-          url: this.settings.button1URL
-        });
-      }
-      if (this.settings.button2Label && this.settings.button2URL) {
-        buttons.push({
-          label: this.settings.button2Label,
-          url: this.settings.button2URL
-        });
-      }
-      this.client.updatePresence({
-      	details: this.settings.details || undefined,
-      	state: this.settings.state || undefined,
-      	startTimestamp: this.settings.enableStartTime ? this.startTime / 1000 : undefined,
-      	largeImageKey: this.settings.largeImageKey || undefined,
-      	smallImageKey: this.settings.smallImageKey || undefined,
-      	largeImageText: this.settings.largeImageText || undefined,
-      	smallImageText: this.settings.smallImageText || undefined,
-      	buttons
-      });
-    }, 5000);
+    if (this.settings.rpcEventInjection) return await this.startRichPresenceInjection();
+    this.client?.removeAllListeners?.();
+    this.client?.disconnect?.();
+    this.client = RPClient(this.currentClientID);
+    this.client.on("setActivityFailed", e => {
+      console.error(e);
+      BdApi.showToast("Failed to set Rich Presence activity.", {type: "error"});
+    });
+    this.client.on("loginFailed", async e => {
+      console.error(e);
+      this.client?.removeAllListeners?.();
+      this.client?.disconnect?.();
+      BdApi.showToast("Rich Presence client ID authentication failed. Make sure your client ID is correct.", {type: "error"});
+    });
+    this.updateRichPresence();
   }
   updateRichPresence() {
-    this.currentTimeout && clearTimeout(this.currentTimeout);
-    this.currentTimeout = setTimeout(() => {
-      if (this.settings.experimentalRPCEventInjection) return this.experimental_updateRichPresence();
-      if (!this.client || this.currentClientID !== this.settings.clientID) {
-        this.currentClientID = this.settings.clientID;
-        return this.startRichPresence();
-      }
-      const buttons = [];
-      if (this.settings.button1Label && this.settings.button1URL) {
+    if (this.settings.rpcEventInjection) return this.updateRichPresenceInjection();
+    if (!this.client || this.currentClientID !== this.activeProfile.clientID) {
+      this.currentClientID = this.activeProfile.clientID;
+      return this.startRichPresence();
+    }
+    const buttons = [];
+    if (this.activeProfile.button1Label && this.activeProfile.button1URL) {
+      if (validButtonURLRegex.test(this.activeProfile.button1URL)) {
         buttons.push({
-          label: this.settings.button1Label,
-          url: this.settings.button1URL
+          label: this.activeProfile.button1Label,
+          url: this.activeProfile.button1URL
         });
+      } else {
+        BdApi.showToast("Invalid button 1 URL.", {type: "error"});
       }
-      if (this.settings.button2Label && this.settings.button2URL) {
+    }
+    if (this.activeProfile.button2Label && this.activeProfile.button2URL) {
+      if (validButtonURLRegex.test(this.activeProfile.button2URL)) {
         buttons.push({
-          label: this.settings.button2Label,
-          url: this.settings.button2URL
+          label: this.activeProfile.button2Label,
+          url: this.activeProfile.button2URL
         });
+      } else {
+        BdApi.showToast("Invalid button 2 URL.", {type: "error"});
       }
-      this.client.updatePresence({
-      	details: this.settings.details || undefined,
-      	state: this.settings.state || undefined,
-      	startTimestamp: this.settings.enableStartTime ? this.startTime / 1000 : undefined,
-      	largeImageKey: this.settings.largeImageKey || undefined,
-      	smallImageKey: this.settings.smallImageKey || undefined,
-      	largeImageText: this.settings.largeImageText || undefined,
-      	smallImageText: this.settings.smallImageText || undefined,
-      	buttons: buttons.length ? buttons : null
-      });
-    }, 5000);
+    }
+    this.client.updatePresence({
+    	details: this.activeProfile.details || undefined,
+    	state: this.activeProfile.state || undefined,
+    	startTimestamp: this.activeProfile.enableStartTime ? this.startTime / 1000 : undefined,
+    	largeImageKey: this.activeProfile.largeImageKey || undefined,
+    	smallImageKey: this.activeProfile.smallImageKey || undefined,
+    	largeImageText: this.activeProfile.largeImageText || undefined,
+    	smallImageText: this.activeProfile.smallImageText || undefined,
+    	buttons: buttons.length ? buttons : null
+    });
   }
   async stopRichPresence() {
-    this.client && typeof this.client.disconnect === "function" && await this.client.disconnect();
+    this.client?.disconnect?.();
   }
-  async experimental_startRichPresence() {
+  async startRichPresenceInjection() {
     const RPCValidatorModule = BdApi.findModuleByProps("validateSocketClient");
     const validateRPC = RPCValidatorModule.validateSocketClient.bind(RPCValidatorModule);
     let validationObject = {
@@ -3848,12 +3865,12 @@ class AutoStartRichPresence {
       }
     }
     this.rpcClientInfo = validationObject.application;
-    return await this.experimental_updateRichPresence();
+    return await this.updateRichPresenceInjection();
   }
-  async experimental_updateRichPresence() {
-    if (this.currentClientID !== this.settings.clientID) {
-      this.currentClientID = this.settings.clientID;
-      return await this.experimental_startRichPresence();
+  async updateRichPresenceInjection() {
+    if (this.currentClientID !== this.activeProfile.clientID) {
+      this.currentClientID = this.activeProfile.clientID;
+      return await this.startRichPresenceInjection();
     }
     const SetActivityModule = BdApi.findModuleByProps("SET_ACTIVITY").SET_ACTIVITY;
     if (!this.discordSetActivityHandler) this.discordSetActivityHandler = SetActivityModule.handler;
@@ -3866,7 +3883,7 @@ class AutoStartRichPresence {
       BdApi.showToast("Failed to set Rich Presence activity.", {type: "error"});
     }
   }
-  async experimental_stopRichPresence() {
+  async stopRichPresenceInjection() {
     if (this.discordSetActivityHandler) {
       const SetActivityModule = BdApi.findModuleByProps("SET_ACTIVITY").SET_ACTIVITY;
       const setActivity = this.discordSetActivityHandler.bind(SetActivityModule);
@@ -3881,7 +3898,6 @@ class AutoStartRichPresence {
         }
       });
       SetActivityModule.handler = this.discordSetActivityHandler;
-      // return BdApi.showToast("Restart Discord to clear your current presence.", {type: "info"});
     }
   }
   buildActivityObject() {
@@ -3911,38 +3927,46 @@ class AutoStartRichPresence {
         }
       }
     };
-    if (this.settings.details) {
-      activityObject.args.activity.details = this.settings.details;
+    if (this.activeProfile.details) {
+      activityObject.args.activity.details = this.activeProfile.details;
     }
-    if (this.settings.state) {
-      activityObject.args.activity.state = this.settings.state;
+    if (this.activeProfile.state) {
+      activityObject.args.activity.state = this.activeProfile.state;
     }
-    if (this.settings.enableStartTime) {
+    if (this.activeProfile.enableStartTime) {
       activityObject.args.activity.timestamps.start = Math.floor(this.startTime / 1000) * 1000;
     }
-    if (this.settings.largeImageKey) {
-      activityObject.args.activity.assets.large_image = this.settings.largeImageKey;
-      if (this.settings.largeImageText) {
-        activityObject.args.activity.assets.large_text = this.settings.largeImageText;
+    if (this.activeProfile.largeImageKey) {
+      activityObject.args.activity.assets.large_image = this.activeProfile.largeImageKey;
+      if (this.activeProfile.largeImageText) {
+        activityObject.args.activity.assets.large_text = this.activeProfile.largeImageText;
       }
     }
-    if (this.settings.smallImageKey) {
-      activityObject.args.activity.assets.small_image = this.settings.smallImageKey;
-      if (this.settings.smallImageText) {
-        activityObject.args.activity.assets.small_text = this.settings.smallImageText;
+    if (this.activeProfile.smallImageKey) {
+      activityObject.args.activity.assets.small_image = this.activeProfile.smallImageKey;
+      if (this.activeProfile.smallImageText) {
+        activityObject.args.activity.assets.small_text = this.activeProfile.smallImageText;
       }
     }
-    if (this.settings.button1Label && this.settings.button1URL) {
-      activityObject.args.activity.buttons.push({
-        label: this.settings.button1Label,
-        url: this.settings.button1URL
-      });
+    if (this.activeProfile.button1Label && this.activeProfile.button1URL) {
+      if (validButtonURLRegex.test(this.activeProfile.button1URL)) {
+        activityObject.args.activity.buttons.push({
+          label: this.activeProfile.button1Label,
+          url: this.activeProfile.button1URL
+        });
+      } else {
+        BdApi.showToast("Invalid button 1 URL.", {type: "error"});
+      }
     }
-    if (this.settings.button2Label && this.settings.button2URL) {
-      activityObject.args.activity.buttons.push({
-        label: this.settings.button2Label,
-        url: this.settings.button2URL
-      });
+    if (this.activeProfile.button2Label && this.activeProfile.button2URL) {
+      if (validButtonURLRegex.test(this.activeProfile.button2URL)) {
+        activityObject.args.activity.buttons.push({
+          label: this.activeProfile.button2Label,
+          url: this.activeProfile.button2URL
+        });
+      } else {
+        BdApi.showToast("Invalid button 2 URL.", {type: "error"});
+      }
     }
     if (!activityObject.args.activity.buttons.length) {
       delete activityObject.args.activity.buttons;
@@ -3952,22 +3976,163 @@ class AutoStartRichPresence {
   updateSettings() {
     BdApi.saveData("AutoStartRichPresence", "settings", this.settings);
   }
+  updateProfiles() {
+    BdApi.saveData("AutoStartRichPresence", "profiles", this.profiles);
+  }
+  deleteProfile(id) {
+    this.profiles.splice(id, 1);
+    if (this.settings.activeProfileID === id) {
+      this.settings.activeProfileID = 0;
+      this.updateSettings();
+      this.updateRichPresence();
+    } else if (this.settings.activeProfileID > id) {
+      this.settings.activeProfileID--;
+      this.updateSettings();
+    }
+    if (this.session.editingProfile === id) {
+      this.session.editingProfile = this.settings.activeProfileID;
+    }
+    this.updateProfiles();
+  }
   generateSettings(panel) {
-    new window.ZeresPluginLibrary.Settings.SettingGroup("Rich Presence Configuration", {collapsible: false, shown: true, callback: () => {this.updateSettings(); this.updateRichPresence();}}).appendTo(panel).append(
-      new window.ZeresPluginLibrary.Settings.Textbox("Client ID", "The client ID of your Discord Rich Presence application.", this.settings.clientID || "", val => {this.settings.clientID = val;}),
-      new window.ZeresPluginLibrary.Settings.Textbox("Details", "The line that goes after your game's name.", this.settings.details || "", val => {this.settings.details = val;}),
-      new window.ZeresPluginLibrary.Settings.Textbox("State", "The line that goes after the details.", this.settings.state || "", val => {this.settings.state = val;}),
-      new window.ZeresPluginLibrary.Settings.Textbox("Large Image Key", "The name of the asset for your large image.", this.settings.largeImageKey || "", val => {this.settings.largeImageKey = val;}),
-      new window.ZeresPluginLibrary.Settings.Textbox("Large Image Text", "The text that appears when your large image is hovered over.", this.settings.largeImageText || "", val => {this.settings.largeImageText = val;}),
-      new window.ZeresPluginLibrary.Settings.Textbox("Small Image Key", "The name of the asset for your small image.", this.settings.smallImageKey || "", val => {this.settings.smallImageKey = val;}),
-      new window.ZeresPluginLibrary.Settings.Textbox("Small Image Text", "The text that appears when your small image is hovered over.", this.settings.smallImageText || "", val => {this.settings.smallImageText = val;}),
-      new window.ZeresPluginLibrary.Settings.Switch("Enable Start Time", "Displays the amount of time your Rich Presence is enabled.", this.settings.enableStartTime, val => {this.settings.enableStartTime = val;}),
-      new window.ZeresPluginLibrary.Settings.Textbox("Button 1 Label", "Label for button.", this.settings.button1Label || "", val => {this.settings.button1Label = val;}),
-      new window.ZeresPluginLibrary.Settings.Textbox("Button 1 URL", "URL for button.", this.settings.button1URL || "", val => {this.settings.button1URL = val;}),
-      new window.ZeresPluginLibrary.Settings.Textbox("Button 2 Label", "Label for button.", this.settings.button2Label || "", val => {this.settings.button2Label = val;}),
-      new window.ZeresPluginLibrary.Settings.Textbox("Button 2 URL", "URL for button.", this.settings.button2URL || "", val => {this.settings.button2URL = val;}),
-      new window.ZeresPluginLibrary.Settings.Switch("Experimental: RPC Event Injection", "Bypasses the use of IPC and hopefully prevents other programs from using their own Rich Presences. Some errors may silently fail, so if something is not working, turn this switch off.", this.settings.experimentalRPCEventInjection, async val => {this.settings.experimentalRPCEventInjection = val; if (val) {await this.stopRichPresence(); await this.experimental_startRichPresence();} else {await this.experimental_stopRichPresence(); await this.startRichPresence();}})
+    let reloadRPCConfigGroup;
+    let reloadEditProfileGroup;
+    const profileInputs = new Map([
+      ["name", new window.ZeresPluginLibrary.Settings.Textbox("Profile Name", "The name of this profile. Has no impact on the rich presence.", this.profiles[this.session.editingProfile]?.name || "", val => {this.profiles[this.session.editingProfile].name = val;}, {disabled: !this.profiles[this.session.editingProfile]})],
+      ["clientID", new window.ZeresPluginLibrary.Settings.Textbox("Client ID", "The client ID of your Discord Rich Presence application.", this.profiles[this.session.editingProfile]?.clientID || "", val => {this.profiles[this.session.editingProfile].clientID = val;}, {disabled: !this.profiles[this.session.editingProfile]})],
+      ["details", new window.ZeresPluginLibrary.Settings.Textbox("Details", "The line that goes after your game's name.", this.profiles[this.session.editingProfile]?.details || "", val => {this.profiles[this.session.editingProfile].details = val;}, {disabled: !this.profiles[this.session.editingProfile]})],
+      ["state", new window.ZeresPluginLibrary.Settings.Textbox("State", "The line that goes after the details.", this.profiles[this.session.editingProfile]?.state || "", val => {this.profiles[this.session.editingProfile].state = val;}, {disabled: !this.profiles[this.session.editingProfile]})],
+      ["largeImageKey", new window.ZeresPluginLibrary.Settings.Textbox("Large Image Key", "The name of the asset for your large image.", this.profiles[this.session.editingProfile]?.largeImageKey || "", val => {this.profiles[this.session.editingProfile].largeImageKey = val;}, {disabled: !this.profiles[this.session.editingProfile]})],
+      ["largeImageText", new window.ZeresPluginLibrary.Settings.Textbox("Large Image Text", "The text that appears when your large image is hovered over.", this.profiles[this.session.editingProfile]?.largeImageText || "", val => {this.profiles[this.session.editingProfile].largeImageText = val;}, {disabled: !this.profiles[this.session.editingProfile]})],
+      ["smallImageKey", new window.ZeresPluginLibrary.Settings.Textbox("Small Image Key", "The name of the asset for your small image.", this.profiles[this.session.editingProfile]?.smallImageKey || "", val => {this.profiles[this.session.editingProfile].smallImageKey = val;}, {disabled: !this.profiles[this.session.editingProfile]})],
+      ["smallImageText", new window.ZeresPluginLibrary.Settings.Textbox("Small Image Text", "The text that appears when your small image is hovered over.", this.profiles[this.session.editingProfile]?.smallImageText || "", val => {this.profiles[this.session.editingProfile].smallImageText = val;}, {disabled: !this.profiles[this.session.editingProfile]})],
+      ["enableStartTime", new window.ZeresPluginLibrary.Settings.Switch("Enable Start Time", "Displays the amount of time your Rich Presence is enabled.", this.profiles[this.session.editingProfile]?.enableStartTime, val => {this.profiles[this.session.editingProfile].enableStartTime = val;}, {disabled: !this.profiles[this.session.editingProfile]})],
+      ["button1Label", new window.ZeresPluginLibrary.Settings.Textbox("Button 1 Label", "Label for button.", this.profiles[this.session.editingProfile]?.button1Label || "", val => {this.profiles[this.session.editingProfile].button1Label = val;}, {disabled: !this.profiles[this.session.editingProfile]})],
+      ["button1URL", new window.ZeresPluginLibrary.Settings.Textbox("Button 1 URL", "URL for button.", this.profiles[this.session.editingProfile]?.button1URL || "", val => {this.profiles[this.session.editingProfile].button1URL = val;}, {disabled: !this.profiles[this.session.editingProfile]})],
+      ["button2Label", new window.ZeresPluginLibrary.Settings.Textbox("Button 2 Label", "Label for button.", this.profiles[this.session.editingProfile]?.button2Label || "", val => {this.profiles[this.session.editingProfile].button2Label = val;}, {disabled: !this.profiles[this.session.editingProfile]})],
+      ["button2URL", new window.ZeresPluginLibrary.Settings.Textbox("Button 2 URL", "URL for button.", this.profiles[this.session.editingProfile]?.button2URL || "", val => {this.profiles[this.session.editingProfile].button2URL = val;}, {disabled: !this.profiles[this.session.editingProfile]})]
+    ]);
+    const reloadEditProfileInputFields = () => {
+      for (const [key, profileInput] of profileInputs.entries()) {
+        const input = profileInput.getElement().querySelector("input");
+        if (this.profiles[this.session.editingProfile]) {
+          input.disabled = false;
+          if (input.type === "checkbox") {
+            if (input.checked !== !!this.profiles[this.session.editingProfile][key]) {
+              // This is hacky but it works, and I don't feel like figuring out how to manipulate the React props
+              input.click();
+            }
+          } else {
+            input.value = this.profiles[this.session.editingProfile][key] || "";
+          }
+        } else {
+          if (input.type === "checkbox") {
+            if (input.checked) {
+              input.click();
+            }
+          } else {
+            input.value = "";
+          }
+          input.disabled = true;
+        }
+      }
+    };
+    const createActiveProfileDropdown = () => {
+      return new window.ZeresPluginLibrary.Settings.Dropdown("Select Active Profile", "", this.settings.activeProfileID, this.profiles.map((p, id) => ({label: p.name, value: id})), val => {this.settings.activeProfileID = val;}, {disabled: !this.profiles.length});
+    };
+    const createRPCInjectionSwitch = () => {
+      return new window.ZeresPluginLibrary.Settings.Switch("RPC Event Injection", "Bypasses the use of IPC and hopefully prevents other programs from using their own Rich Presences. Some errors may silently fail, so if something is not working, turn this switch off.", this.settings.rpcEventInjection, async val => {
+        this.settings.rpcEventInjection = val;
+        if (val) {
+          await this.stopRichPresence();
+          await this.startRichPresenceInjection();
+        } else {
+          await this.stopRichPresenceInjection();
+          await this.startRichPresence();
+        }
+      });
+    };
+    const createEditProfileDropdown = () => {
+      return new window.ZeresPluginLibrary.Settings.Dropdown("", "", this.session.editingProfile, this.profiles.map((p, id) => ({label: p.name, value: id})), val => {
+        this.session.editingProfile = val;
+        reloadEditProfileInputFields();
+      }, {disabled: !this.profiles.length});
+    };
+    let activeProfileDropdown = createActiveProfileDropdown();
+    let rpcInjectionSwitch = createRPCInjectionSwitch();
+    let editProfileDropdown = createEditProfileDropdown();
+    // Regular HTML elements don't need to be recreated when resetting setting groups
+    const newProfileButton = document.createElement("button");
+    newProfileButton.innerText = "Create New Profile";
+    newProfileButton.classList.add(
+      ZeresPluginLibrary.DiscordModules.ButtonData.ButtonColors.BRAND,
+      ZeresPluginLibrary.DiscordModules.ButtonData.ButtonSizes.MEDIUM,
+      ZeresPluginLibrary.DiscordModules.ButtonData.ButtonLooks.FILLED,
+      ZeresPluginLibrary.WebpackModules.find(m => m.button && m.grow).button,
+      ZeresPluginLibrary.WebpackModules.find(m => m.button && m.grow).grow
+    );
+    newProfileButton.addEventListener("click", e => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.profiles.push({
+        name: "New Profile"
+      });
+      this.session.editingProfile = this.profiles.length - 1;
+      this.updateProfiles();
+      reloadRPCConfigGroup();
+      reloadEditProfileGroup();
+      reloadEditProfileInputFields();
+    });
+    const deleteProfileButton = document.createElement("button");
+    deleteProfileButton.innerText = "Delete Profile";
+    deleteProfileButton.classList.add(
+      ZeresPluginLibrary.DiscordModules.ButtonData.ButtonColors.RED,
+      ZeresPluginLibrary.DiscordModules.ButtonData.ButtonSizes.MEDIUM,
+      ZeresPluginLibrary.DiscordModules.ButtonData.ButtonLooks.FILLED,
+      ZeresPluginLibrary.WebpackModules.find(m => m.button && m.grow).button,
+      ZeresPluginLibrary.WebpackModules.find(m => m.button && m.grow).grow
+    );
+    deleteProfileButton.addEventListener("click", e => {
+      e.preventDefault();
+      e.stopPropagation();
+      const profileIDToDelete = this.session.editingProfile;
+      BdApi.showConfirmationModal("Delete Rich Presence Profile", `Are you sure you want to delete ${this.profiles[profileIDToDelete].name || "this profile"}? (This will not delete any Discord Developer Applications.)`, {
+        danger: true,
+        confirmText: "Delete",
+        onConfirm: () => {
+          this.deleteProfile(profileIDToDelete);
+          this.updateProfiles();
+          reloadRPCConfigGroup();
+          reloadEditProfileGroup();
+          reloadEditProfileInputFields();
+        }
+      });
+    });
+    const rpcConfigGroup = new window.ZeresPluginLibrary.Settings.SettingGroup("Rich Presence Configuration", {collapsible: false, shown: true, callback: () => {clearTimeout(this.currentTimeout); this.currentTimeout = setTimeout(() => {this.updateSettings(); this.updateRichPresence();}, 5000);}}).appendTo(panel).append(
+      activeProfileDropdown,
+      rpcInjectionSwitch,
+      newProfileButton
 		);
+    reloadRPCConfigGroup = () => {
+      rpcConfigGroup.group.children[1].textContent = "";
+      activeProfileDropdown = createActiveProfileDropdown();
+      rpcInjectionSwitch = createRPCInjectionSwitch();
+      rpcConfigGroup.append(
+        activeProfileDropdown,
+        rpcInjectionSwitch,
+        newProfileButton
+      );
+    };
+    const editProfileGroup = new window.ZeresPluginLibrary.Settings.SettingGroup("Select Profile to Edit", {collapsible: false, shown: true}).appendTo(panel).append(editProfileDropdown, deleteProfileButton);
+    reloadEditProfileGroup = () => {
+      editProfileGroup.group.children[1].textContent = "";
+      editProfileDropdown = createEditProfileDropdown();
+      editProfileGroup.append(
+        editProfileDropdown,
+        deleteProfileButton
+      );
+    };
+    new window.ZeresPluginLibrary.Settings.SettingGroup("Edit Selected Profile", {collapsible: false, shown: true, callback: () => {if (this.session.editingProfile === this.settings.activeProfileID) {clearTimeout(this.currentTimeout); this.currentTimeout = setTimeout(() => {this.updateProfiles(); this.updateRichPresence();}, 5000);}}}).appendTo(panel).append(...profileInputs.values());
     let div = document.createElement("div");
     div.innerHTML = '<a href="https://discordapp.com/developers/applications/me" rel="noreferrer noopener" target="_blank">Create or edit your Discord Rich Presence application here!</a>';
     panel.appendChild(div);
@@ -3977,6 +4142,32 @@ class AutoStartRichPresence {
     div = document.createElement("div");
     div.innerHTML = '<a href="https://github.com/Mega-Mewthree/BetterDiscordPlugins/tree/master/Plugins/AutoStartRichPresence#troubleshooting" rel="noreferrer noopener" target="_blank">Click here for troubleshooting.</a>';
     panel.appendChild(div);
+    activeProfileDropdown.getElement().parentNode.style.overflow = "visible";
+    editProfileDropdown.getElement().parentNode.style.overflow = "visible";
+    profileInputs.get("name").addListener(() => {
+      profileInputs.get("name").getElement().querySelector("input").addEventListener("blur", () => {
+        reloadRPCConfigGroup();
+        reloadEditProfileGroup();
+      });
+    });
+  }
+  migrateData() {
+    let profilesData = BdApi.loadData("AutoStartRichPresence", "profiles");
+    if (profilesData) return;
+    this.settings = BdApi.loadData("AutoStartRichPresence", "settings");
+    this.settings.activeProfileID = 0;
+    profilesData = [{
+      name: "My Profile"
+    }];
+    for (const key of ["clientID", "details", "state", "largeImageKey", "largeImageText", "smallImageKey", "smallImageText", "enableStartTime", "button1Label", "button1URL", "button2Label", "button2URL"]) {
+      profilesData[0][key] = this.settings[key];
+      delete this.settings[key];
+    }
+    this.settings.rpcEventInjection = this.settings.experimentalRPCEventInjection || false;
+    delete this.settings.experimentalRPCEventInjection;
+    this.profiles = profilesData;
+    this.updateProfiles();
+    this.updateSettings();
   }
 }
 
