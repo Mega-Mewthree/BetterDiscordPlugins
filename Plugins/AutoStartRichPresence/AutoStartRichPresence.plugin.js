@@ -1,6 +1,6 @@
 /**
  * @name AutoStartRichPresence
- * @version 2.0.0
+ * @version 2.0.1
  *
  * @author Lucario ☉ ∝ x²#7902
  * @authorId 438469378418409483
@@ -45,16 +45,26 @@ SOFTWARE.
 
 const changelog = {
   title: "AutoStartRichPresence Updated",
-  version: "2.0.0",
-  changelog: [{
-    title: "Rich presence profiles have been added!",
-    type: "added",
-    items: [
-      "You can now create multiple rich presence configurations and switch between them quickly.",
-      "Your settings have been automatically migrated to a new format that is not compatible with older versions.",
-      "Please report any bugs with the new profile system."
-    ]
-  }]
+  version: "2.0.1",
+  changelog: [
+    {
+      title: "v2.0.0: Rich presence profiles have been added!",
+      type: "added",
+      items: [
+        "You can now create multiple rich presence configurations and switch between them quickly.",
+        "Your settings have been automatically migrated to a new format that is not compatible with older versions.",
+        "Please report any bugs with the new profile system."
+      ]
+    },
+    {
+      title: "v2.0.1: Bug Fixes",
+      type: "fixed",
+      items: [
+        "Having no buttons no longer causes an error when not using RPC event injection.",
+        "Switching RPC injection on and off quickly no longer crashes the client."
+      ]
+    }
+  ]
 };
 
 // Might not be strict enough, but most people are probably not attempting to use weird URLs
@@ -3614,7 +3624,7 @@ let RPClient;
   				secrets,
   				instance: !!args.instance,
   			}
-  			if (args.buttons.length) {
+  			if (args.buttons?.length) {
   				activity.buttons = args.buttons;
   			}
 
@@ -3732,6 +3742,30 @@ function versionCompare(a, b) {
   return (a < b) ? -1 : 1;
 }
 
+class FunctionQueue {
+  constructor() {
+    this.queue = [];
+  }
+  push(func) {
+    this.queue.push(func);
+    if (this.queue.length === 1) {
+      this.advanceQueue();
+    }
+  }
+  async advanceQueue() {
+    console.log("Queue advancing");
+    try {
+      await this.queue[0]();
+    } catch (e) {
+      console.error("ASRP: ", e);
+    }
+    this.queue.shift();
+    if (this.queue.length) {
+      setTimeout(this.advanceQueue.bind(this), 0);
+    }
+  }
+}
+
 class AutoStartRichPresence {
   constructor() {
     this.initialized = false;
@@ -3754,7 +3788,9 @@ class AutoStartRichPresence {
     }
     this.profiles = BdApi.loadData("AutoStartRichPresence", "profiles") || [];
     this.session = {
-      editingProfile: this.settings.activeProfileID || 0
+      editingProfile: this.settings.activeProfileID || 0,
+      // When calling start/stop functions, this prevents crashes
+      functionQueue: new FunctionQueue()
     };
     this.currentClientID = this.activeProfile?.clientID;
     this.rpcClientInfo = {};
@@ -3770,10 +3806,10 @@ class AutoStartRichPresence {
     this.initialized = true;
   }
   async stop() {
-    if (this.settings.rpcEventInjection) await this.stopRichPresenceInjection();
-    await this.stopRichPresence();
+    if (this.settings.rpcEventInjection) this.stopRichPresenceInjection();
+    this.stopRichPresence();
     this.initialized = false;
-    BdApi.showToast("AutoStartRichPresence has stopped!");
+    BdApi.showToast("AutoStartRichPresence is stopping!");
   }
   get activeProfile() {
     return this.profiles[this.settings.activeProfileID];
@@ -3788,8 +3824,26 @@ class AutoStartRichPresence {
   	if (this.initialized) this.generateSettings(panel);
   	return panel;
   }
-  async startRichPresence() {
-    if (this.settings.rpcEventInjection) return await this.startRichPresenceInjection();
+  startRichPresence() {
+    this.session.functionQueue.push(() => this._startRichPresence());
+  }
+  updateRichPresence() {
+    this.session.functionQueue.push(() => this._updateRichPresence());
+  }
+  stopRichPresence() {
+    this.session.functionQueue.push(() => this._stopRichPresence());
+  }
+  startRichPresenceInjection() {
+    this.session.functionQueue.push(() => this._startRichPresenceInjection());
+  }
+  updateRichPresenceInjection() {
+    this.session.functionQueue.push(() => this._updateRichPresenceInjection());
+  }
+  stopRichPresenceInjection() {
+    this.session.functionQueue.push(() => this._stopRichPresenceInjection());
+  }
+  async _startRichPresence() {
+    if (this.settings.rpcEventInjection) return await this._startRichPresenceInjection();
     this.client?.removeAllListeners?.();
     this.client?.disconnect?.();
     this.client = RPClient(this.currentClientID);
@@ -3803,13 +3857,13 @@ class AutoStartRichPresence {
       this.client?.disconnect?.();
       BdApi.showToast("Rich Presence client ID authentication failed. Make sure your client ID is correct.", {type: "error"});
     });
-    this.updateRichPresence();
+    this._updateRichPresence();
   }
-  updateRichPresence() {
-    if (this.settings.rpcEventInjection) return this.updateRichPresenceInjection();
+  _updateRichPresence() {
+    if (this.settings.rpcEventInjection) return this._updateRichPresenceInjection();
     if (!this.client || this.currentClientID !== this.activeProfile.clientID) {
       this.currentClientID = this.activeProfile.clientID;
-      return this.startRichPresence();
+      return this._startRichPresence();
     }
     const buttons = [];
     if (this.activeProfile.button1Label && this.activeProfile.button1URL) {
@@ -3843,10 +3897,10 @@ class AutoStartRichPresence {
     	buttons: buttons.length ? buttons : null
     });
   }
-  async stopRichPresence() {
-    this.client?.disconnect?.();
+  async _stopRichPresence() {
+    return this.client?.disconnect?.();
   }
-  async startRichPresenceInjection() {
+  async _startRichPresenceInjection() {
     const RPCValidatorModule = BdApi.findModuleByProps("validateSocketClient");
     const validateRPC = RPCValidatorModule.validateSocketClient.bind(RPCValidatorModule);
     let validationObject = {
@@ -3860,17 +3914,20 @@ class AutoStartRichPresence {
     try {
       await validateRPC(validationObject, null, this.currentClientID);
     } catch (e) {
+      console.error(e);
       if (e.message === "Invalid Client ID") {
         return BdApi.showToast("Rich Presence client ID authentication failed. Make sure your client ID is correct.", {type: "error"});
+      } else {
+        return BdApi.showToast("Failed to set Rich Presence activity.", {type: "error"});
       }
     }
     this.rpcClientInfo = validationObject.application;
-    return await this.updateRichPresenceInjection();
+    return await this._updateRichPresenceInjection();
   }
-  async updateRichPresenceInjection() {
+  async _updateRichPresenceInjection() {
     if (this.currentClientID !== this.activeProfile.clientID) {
       this.currentClientID = this.activeProfile.clientID;
-      return await this.startRichPresenceInjection();
+      return await this._startRichPresenceInjection();
     }
     const SetActivityModule = BdApi.findModuleByProps("SET_ACTIVITY").SET_ACTIVITY;
     if (!this.discordSetActivityHandler) this.discordSetActivityHandler = SetActivityModule.handler;
@@ -3883,7 +3940,7 @@ class AutoStartRichPresence {
       BdApi.showToast("Failed to set Rich Presence activity.", {type: "error"});
     }
   }
-  async stopRichPresenceInjection() {
+  async _stopRichPresenceInjection() {
     if (this.discordSetActivityHandler) {
       const SetActivityModule = BdApi.findModuleByProps("SET_ACTIVITY").SET_ACTIVITY;
       const setActivity = this.discordSetActivityHandler.bind(SetActivityModule);
@@ -4041,15 +4098,14 @@ class AutoStartRichPresence {
       return new window.ZeresPluginLibrary.Settings.Dropdown("Select Active Profile", "", this.settings.activeProfileID, this.profiles.map((p, id) => ({label: p.name, value: id})), val => {this.settings.activeProfileID = val;}, {disabled: !this.profiles.length});
     };
     const createRPCInjectionSwitch = () => {
-      return new window.ZeresPluginLibrary.Settings.Switch("RPC Event Injection", "Bypasses the use of IPC and hopefully prevents other programs from using their own Rich Presences. Some errors may silently fail, so if something is not working, turn this switch off.", this.settings.rpcEventInjection, async val => {
+      return new window.ZeresPluginLibrary.Settings.Switch("RPC Event Injection", "Bypasses the use of IPC and hopefully prevents other programs from using their own Rich Presences. Some errors may silently fail, so if something is not working, turn this switch off.", this.settings.rpcEventInjection, val => {
         this.settings.rpcEventInjection = val;
         if (val) {
-          await this.stopRichPresence();
-          await this.startRichPresenceInjection();
+          this.stopRichPresence();
         } else {
-          await this.stopRichPresenceInjection();
-          await this.startRichPresence();
+          this.stopRichPresenceInjection();
         }
+        this.startRichPresence();
       });
     };
     const createEditProfileDropdown = () => {
@@ -4108,7 +4164,7 @@ class AutoStartRichPresence {
         }
       });
     });
-    const rpcConfigGroup = new window.ZeresPluginLibrary.Settings.SettingGroup("Rich Presence Configuration", {collapsible: false, shown: true, callback: () => {clearTimeout(this.currentTimeout); this.currentTimeout = setTimeout(() => {this.updateSettings(); this.updateRichPresence();}, 5000);}}).appendTo(panel).append(
+    const rpcConfigGroup = new window.ZeresPluginLibrary.Settings.SettingGroup("Rich Presence Configuration", {collapsible: false, shown: true, callback: () => {clearTimeout(this.currentTimeout); this.currentTimeout = setTimeout(() => {this.updateSettings(); this.updateProfiles(); this.updateRichPresence();}, 5000);}}).appendTo(panel).append(
       activeProfileDropdown,
       rpcInjectionSwitch,
       newProfileButton
@@ -4132,7 +4188,7 @@ class AutoStartRichPresence {
         deleteProfileButton
       );
     };
-    new window.ZeresPluginLibrary.Settings.SettingGroup("Edit Selected Profile", {collapsible: false, shown: true, callback: () => {if (this.session.editingProfile === this.settings.activeProfileID) {clearTimeout(this.currentTimeout); this.currentTimeout = setTimeout(() => {this.updateProfiles(); this.updateRichPresence();}, 5000);}}}).appendTo(panel).append(...profileInputs.values());
+    new window.ZeresPluginLibrary.Settings.SettingGroup("Edit Selected Profile", {collapsible: false, shown: true, callback: () => {if (this.session.editingProfile === this.settings.activeProfileID) {clearTimeout(this.currentTimeout); this.currentTimeout = setTimeout(() => {this.updateSettings(); this.updateProfiles(); this.updateRichPresence();}, 5000);}}}).appendTo(panel).append(...profileInputs.values());
     let div = document.createElement("div");
     div.innerHTML = '<a href="https://discordapp.com/developers/applications/me" rel="noreferrer noopener" target="_blank">Create or edit your Discord Rich Presence application here!</a>';
     panel.appendChild(div);
