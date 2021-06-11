@@ -1,6 +1,6 @@
 /**
  * @name AutoStartRichPresence
- * @version 2.0.1
+ * @version 2.0.2
  *
  * @author Lucario ☉ ∝ x²#7902
  * @authorId 438469378418409483
@@ -45,7 +45,7 @@ SOFTWARE.
 
 const changelog = {
   title: "AutoStartRichPresence Updated",
-  version: "2.0.1",
+  version: "2.0.2",
   changelog: [
     {
       title: "v2.0.0: Rich presence profiles have been added!",
@@ -62,6 +62,14 @@ const changelog = {
       items: [
         "Having no buttons no longer causes an error when not using RPC event injection.",
         "Switching RPC injection on and off quickly no longer crashes the client."
+      ]
+    },
+    {
+      title: "v2.0.2: Update Checker",
+      type: "fixed",
+      items: [
+        "Added back update check that was too hastily replaced with @updateUrl earlier since @updateUrl does not currently work.",
+        "The previous update check was broken anyway due to using the wrong/old class, so no harm done."
       ]
     }
   ]
@@ -3753,7 +3761,6 @@ class FunctionQueue {
     }
   }
   async advanceQueue() {
-    console.log("Queue advancing");
     try {
       await this.queue[0]();
     } catch (e) {
@@ -3780,6 +3787,7 @@ class AutoStartRichPresence {
     }
   }
   initialize() {
+    window.ZeresPluginLibrary?.PluginUpdater?.checkForUpdate?.("AutoStartRichPresence", changelog.version, "https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Plugins/AutoStartRichPresence/AutoStartRichPresence.plugin.js");
     BdApi.showToast("AutoStartRichPresence has started!");
     this.startTime = Date.now();
     this.settings = BdApi.loadData("AutoStartRichPresence", "settings") || {};
