@@ -1,9 +1,25 @@
-//META{"name":"ColorSighted","website":"https://github.com/Mega-Mewthree/BetterDiscordPlugins/tree/master/Plugins/ColorSighted","source":"https://github.com/Mega-Mewthree/BetterDiscordPlugins/blob/master/Plugins/ColorSighted/ColorSighted.plugin.js"}*//
-
+/**
+ * @name ColorSighted
+ * @version 1.0.1
+ *
+ * @author Lucario ☉ ∝ x²#7902
+ * @authorId 438469378418409483
+ * @description Are you not a colorblind person? This plugin removes the colorblind status indicators and replaces them with fully circular ones, just like how they used to be.
+ * Required dependency: ZeresPluginLibrary
+ *
+ * DM the author or create an issue for support.
+ *
+ * @updateUrl https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Plugins/ColorSighted/ColorSighted.plugin.js
+ * @invite ZYND2Xd
+ * @authorLink https://github.com/Mega-Mewthree/BetterDiscordPlugins/tree/master/Plugins/ColorSighted
+ * @source https://github.com/Mega-Mewthree/BetterDiscordPlugins/tree/master/Plugins/ColorSighted
+ * @website https://github.com/Mega-Mewthree/BetterDiscordPlugins/tree/master/Plugins/ColorSighted
+ * @donate https://www.buymeacoffee.com/lucariodev
+ */
 /*
 MIT License
 
-Copyright (c) 2020 Mega_Mewthree
+Copyright (c) 2020-2021 Mega-Mewthree
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,53 +40,30 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Updated January 19th, 2020.
+// Updated June 16th, 2021.
 
 class ColorSighted {
-  getName() {
-    return "ColorSighted";
-  }
-  getShortName() {
-    return "ColorSighted";
-  }
-  getDescription() {
-    return "Are you not a colorblind person? This plugin removes the colorblind status indicators and replaces them with fully circular ones, just like how they used to be.\nRequired dependency: ZeresPluginLibrary\n\nMy Discord server: https://nebula.mooo.info/discord-invite\nDM me @Lucario ☉ ∝ x²#7902 or create an issue at https://github.com/Mega-Mewthree/BetterDiscordPlugins for support.";
-  }
-  getVersion() {
-    return "1.0.0";
-  }
-  getAuthor() {
-    return "Mega_Mewthree"; // Current Discord account: @Lucario ☉ ∝ x²#7902 (438469378418409483)
-  }
   constructor() {
     this.originalMaskIDs = {};
     this.MaskIDs = null;
   }
-  load() {}
-  unload() {}
   start() {
     if (typeof window.ZeresPluginLibrary === "undefined") {
-      BdApi.showToast(`${this.getName()}: Please install "ZeresPluginLibrary" and restart this plugin.`, {type: "error"});
+      BdApi.showToast(`${this.constructor.name}: Please install "ZeresPluginLibrary" and restart this plugin.`, {type: "error"});
     } else {
       this.MaskIDs = window.ZLibrary.WebpackModules.getByProps("MaskIDs").MaskIDs;
       ["STATUS_IDLE", "STATUS_DND", "STATUS_OFFLINE", "STATUS_STREAMING"].forEach(maskName => {
         this.originalMaskIDs[maskName] = this.MaskIDs[maskName];
         this.MaskIDs[maskName] = this.MaskIDs.STATUS_ONLINE;
       });
-      if (window.ZeresPluginLibrary.PluginUtilities && typeof window.ZeresPluginLibrary.PluginUtilities.checkForUpdate === "function") {
-        try {
-          window.ZeresPluginLibrary.PluginUtilities.checkForUpdate(this.getName(), this.getVersion(), `https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Plugins/${this.getName()}/${this.getName()}.plugin.js`);
-        } catch (e) {
-          console.error(e);
-        }
-      }
-      BdApi.showToast(`${this.getName()} has started!`);
+      window.ZeresPluginLibrary?.PluginUpdater?.checkForUpdate?.(this.constructor.name, BdApi.Plugins.get(this.constructor.name).version, `https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Plugins/${this.constructor.name}/${this.constructor.name}.plugin.js`);
+      BdApi.showToast(`${this.constructor.name} has started!`);
     }
   }
   async stop() {
     for (const maskName of Object.keys(this.originalMaskIDs)) {
       this.MaskIDs[maskName] = this.originalMaskIDs[maskName];
     }
-    BdApi.showToast(`${this.getName()} has stopped!`);
+    BdApi.showToast(`${this.constructor.name} has stopped!`);
   }
 }
