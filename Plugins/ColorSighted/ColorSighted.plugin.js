@@ -1,6 +1,6 @@
 /**
  * @name ColorSighted
- * @version 1.0.1
+ * @version 1.0.2
  *
  * @author Lucario ☉ ∝ x²#7902
  * @authorId 438469378418409483
@@ -57,6 +57,19 @@ class ColorSighted {
         this.MaskIDs[maskName] = this.MaskIDs.STATUS_ONLINE;
       });
       window.ZeresPluginLibrary?.PluginUpdater?.checkForUpdate?.(this.constructor.name, BdApi.Plugins.get(this.constructor.name).version, `https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Plugins/${this.constructor.name}/${this.constructor.name}.plugin.js`);
+      // To avoid conflicts with a future update for MobileForAll, must use "instead" instead of "before"
+      window.ZeresPluginLibrary.Patcher.instead("ColorSighted", window.ZLibrary.WebpackModules.getByProps("getStatusMask"), "getStatusMask", function (that, [status, mobile, typing], origFunction) {
+        const {StatusTypes} = window.ZLibrary.WebpackModules.getByProps("StatusTypes");
+        return origFunction.call(that, StatusTypes.ONLINE, (status === StatusTypes.ONLINE) ? mobile : false, typing);
+      });
+      window.ZeresPluginLibrary.Patcher.instead("ColorSighted", window.ZLibrary.WebpackModules.getByProps("getStatusValues"), "getStatusValues", function (that, args, origFunction) {
+        const {StatusTypes} = window.ZLibrary.WebpackModules.getByProps("StatusTypes");
+        if (args[0].status !== StatusTypes.ONLINE) {
+          args[0].isMobile = false;
+        }
+        args[0].status = StatusTypes.ONLINE;
+        return origFunction.apply(that, args);
+      });
       BdApi.showToast(`${this.constructor.name} has started!`);
     }
   }
@@ -64,6 +77,7 @@ class ColorSighted {
     for (const maskName of Object.keys(this.originalMaskIDs)) {
       this.MaskIDs[maskName] = this.originalMaskIDs[maskName];
     }
+    window.ZeresPluginLibrary.Patcher.unpatchAll("ColorSighted");
     BdApi.showToast(`${this.constructor.name} has stopped!`);
   }
 }
