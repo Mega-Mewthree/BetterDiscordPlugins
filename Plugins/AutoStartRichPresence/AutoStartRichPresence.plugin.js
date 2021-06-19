@@ -2,7 +2,7 @@
  * @name AutoStartRichPresence
  * @version 2.0.3
  *
- * @author Lucario
+ * @author Lucario ☉ ∝ x²#7902
  * @authorId 438469378418409483
  * @description Auto starts Rich Presence with configurable settings.
  * Required dependency: [ZeresPluginLibrary](https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js) (Ctrl + S to download)
