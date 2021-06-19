@@ -1,6 +1,6 @@
 /**
  * @name AutoStartRichPresence
- * @version 2.0.2
+ * @version 2.0.3
  *
  * @author Lucario ☉ ∝ x²#7902
  * @authorId 438469378418409483
@@ -41,11 +41,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Updated June 10th, 2021.
+// Updated June 19th, 2021.
 
 const changelog = {
   title: "AutoStartRichPresence Updated",
-  version: "2.0.2",
+  version: "2.0.3",
   changelog: [
     {
       title: "v2.0.0: Rich presence profiles have been added!",
@@ -71,6 +71,15 @@ const changelog = {
         "Added back update check that was too hastily replaced with @updateUrl earlier since @updateUrl does not currently work.",
         "The previous update check was broken anyway due to using the wrong/old class, so no harm done."
       ]
+    },
+    {
+      title: "v2.0.3: Button Label Validation",
+      type: "fixed",
+      items: [
+        "Button labels are now checked to ensure they are smaller than 32 characters in length.",
+        "Button labels that exceed the limit will now cause an error to appear, and the button will simply be removed rather than having the entire rich presence fail.",
+        "Some settings that should not have trailing whitespaces are now trimmed on save."
+      ]
     }
   ]
 };
@@ -85,7 +94,7 @@ let RPClient;
   const fs = require("fs");
   const EventEmitter = require("events");
   const {
-	  Buffer
+    Buffer
   } = require("buffer");
 
   // snekfetch library
@@ -3827,10 +3836,10 @@ class AutoStartRichPresence {
     this.settings = BdApi.loadData("AutoStartRichPresence", "settings") || {};
     this.profiles = BdApi.loadData("AutoStartRichPresence", "profiles") || [];
     const panel = document.createElement("form");
-  	panel.classList.add("form");
-  	panel.style.setProperty("width", "100%");
-  	if (this.initialized) this.generateSettings(panel);
-  	return panel;
+    panel.classList.add("form");
+    panel.style.setProperty("width", "100%");
+    if (this.initialized) this.generateSettings(panel);
+    return panel;
   }
   startRichPresence() {
     this.session.functionQueue.push(() => this._startRichPresence());
@@ -3895,14 +3904,14 @@ class AutoStartRichPresence {
       }
     }
     this.client.updatePresence({
-    	details: this.activeProfile.details || undefined,
-    	state: this.activeProfile.state || undefined,
-    	startTimestamp: this.activeProfile.enableStartTime ? this.startTime / 1000 : undefined,
-    	largeImageKey: this.activeProfile.largeImageKey || undefined,
-    	smallImageKey: this.activeProfile.smallImageKey || undefined,
-    	largeImageText: this.activeProfile.largeImageText || undefined,
-    	smallImageText: this.activeProfile.smallImageText || undefined,
-    	buttons: buttons.length ? buttons : null
+      details: this.activeProfile.details || undefined,
+      state: this.activeProfile.state || undefined,
+      startTimestamp: this.activeProfile.enableStartTime ? this.startTime / 1000 : undefined,
+      largeImageKey: this.activeProfile.largeImageKey || undefined,
+      smallImageKey: this.activeProfile.smallImageKey || undefined,
+      largeImageText: this.activeProfile.largeImageText || undefined,
+      smallImageText: this.activeProfile.smallImageText || undefined,
+      buttons: buttons.length ? buttons : null
     });
   }
   async _stopRichPresence() {
@@ -4014,7 +4023,9 @@ class AutoStartRichPresence {
       }
     }
     if (this.activeProfile.button1Label && this.activeProfile.button1URL) {
-      if (validButtonURLRegex.test(this.activeProfile.button1URL)) {
+      if (this.activeProfile.button1Label.length > 32) {
+        BdApi.showToast("Button 1 label must not exceed 32 characters.", {type: "error"});
+      } else if (validButtonURLRegex.test(this.activeProfile.button1URL)) {
         activityObject.args.activity.buttons.push({
           label: this.activeProfile.button1Label,
           url: this.activeProfile.button1URL
@@ -4024,7 +4035,9 @@ class AutoStartRichPresence {
       }
     }
     if (this.activeProfile.button2Label && this.activeProfile.button2URL) {
-      if (validButtonURLRegex.test(this.activeProfile.button2URL)) {
+      if (this.activeProfile.button2Label.length > 32) {
+        BdApi.showToast("Button 2 label must not exceed 32 characters.", {type: "error"});
+      } else if (validButtonURLRegex.test(this.activeProfile.button2URL)) {
         activityObject.args.activity.buttons.push({
           label: this.activeProfile.button2Label,
           url: this.activeProfile.button2URL
@@ -4064,18 +4077,18 @@ class AutoStartRichPresence {
     let reloadEditProfileGroup;
     const profileInputs = new Map([
       ["name", new window.ZeresPluginLibrary.Settings.Textbox("Profile Name", "The name of this profile. Has no impact on the rich presence.", this.profiles[this.session.editingProfile]?.name || "", val => {this.profiles[this.session.editingProfile].name = val;}, {disabled: !this.profiles[this.session.editingProfile]})],
-      ["clientID", new window.ZeresPluginLibrary.Settings.Textbox("Client ID", "The client ID of your Discord Rich Presence application.", this.profiles[this.session.editingProfile]?.clientID || "", val => {this.profiles[this.session.editingProfile].clientID = val;}, {disabled: !this.profiles[this.session.editingProfile]})],
+      ["clientID", new window.ZeresPluginLibrary.Settings.Textbox("Client ID", "The client ID of your Discord Rich Presence application.", this.profiles[this.session.editingProfile]?.clientID || "", val => {this.profiles[this.session.editingProfile].clientID = val?.trim?.();}, {disabled: !this.profiles[this.session.editingProfile]})],
       ["details", new window.ZeresPluginLibrary.Settings.Textbox("Details", "The line that goes after your game's name.", this.profiles[this.session.editingProfile]?.details || "", val => {this.profiles[this.session.editingProfile].details = val;}, {disabled: !this.profiles[this.session.editingProfile]})],
       ["state", new window.ZeresPluginLibrary.Settings.Textbox("State", "The line that goes after the details.", this.profiles[this.session.editingProfile]?.state || "", val => {this.profiles[this.session.editingProfile].state = val;}, {disabled: !this.profiles[this.session.editingProfile]})],
-      ["largeImageKey", new window.ZeresPluginLibrary.Settings.Textbox("Large Image Key", "The name of the asset for your large image.", this.profiles[this.session.editingProfile]?.largeImageKey || "", val => {this.profiles[this.session.editingProfile].largeImageKey = val;}, {disabled: !this.profiles[this.session.editingProfile]})],
+      ["largeImageKey", new window.ZeresPluginLibrary.Settings.Textbox("Large Image Key", "The name of the asset for your large image.", this.profiles[this.session.editingProfile]?.largeImageKey || "", val => {this.profiles[this.session.editingProfile].largeImageKey = val?.trim?.();}, {disabled: !this.profiles[this.session.editingProfile]})],
       ["largeImageText", new window.ZeresPluginLibrary.Settings.Textbox("Large Image Text", "The text that appears when your large image is hovered over.", this.profiles[this.session.editingProfile]?.largeImageText || "", val => {this.profiles[this.session.editingProfile].largeImageText = val;}, {disabled: !this.profiles[this.session.editingProfile]})],
-      ["smallImageKey", new window.ZeresPluginLibrary.Settings.Textbox("Small Image Key", "The name of the asset for your small image.", this.profiles[this.session.editingProfile]?.smallImageKey || "", val => {this.profiles[this.session.editingProfile].smallImageKey = val;}, {disabled: !this.profiles[this.session.editingProfile]})],
+      ["smallImageKey", new window.ZeresPluginLibrary.Settings.Textbox("Small Image Key", "The name of the asset for your small image.", this.profiles[this.session.editingProfile]?.smallImageKey || "", val => {this.profiles[this.session.editingProfile].smallImageKey = val?.trim?.();}, {disabled: !this.profiles[this.session.editingProfile]})],
       ["smallImageText", new window.ZeresPluginLibrary.Settings.Textbox("Small Image Text", "The text that appears when your small image is hovered over.", this.profiles[this.session.editingProfile]?.smallImageText || "", val => {this.profiles[this.session.editingProfile].smallImageText = val;}, {disabled: !this.profiles[this.session.editingProfile]})],
       ["enableStartTime", new window.ZeresPluginLibrary.Settings.Switch("Enable Start Time", "Displays the amount of time your Rich Presence is enabled.", this.profiles[this.session.editingProfile]?.enableStartTime, val => {this.profiles[this.session.editingProfile].enableStartTime = val;}, {disabled: !this.profiles[this.session.editingProfile]})],
       ["button1Label", new window.ZeresPluginLibrary.Settings.Textbox("Button 1 Label", "Label for button.", this.profiles[this.session.editingProfile]?.button1Label || "", val => {this.profiles[this.session.editingProfile].button1Label = val;}, {disabled: !this.profiles[this.session.editingProfile]})],
-      ["button1URL", new window.ZeresPluginLibrary.Settings.Textbox("Button 1 URL", "URL for button.", this.profiles[this.session.editingProfile]?.button1URL || "", val => {this.profiles[this.session.editingProfile].button1URL = val;}, {disabled: !this.profiles[this.session.editingProfile]})],
+      ["button1URL", new window.ZeresPluginLibrary.Settings.Textbox("Button 1 URL", "URL for button.", this.profiles[this.session.editingProfile]?.button1URL || "", val => {this.profiles[this.session.editingProfile].button1URL = val?.trim?.();}, {disabled: !this.profiles[this.session.editingProfile]})],
       ["button2Label", new window.ZeresPluginLibrary.Settings.Textbox("Button 2 Label", "Label for button.", this.profiles[this.session.editingProfile]?.button2Label || "", val => {this.profiles[this.session.editingProfile].button2Label = val;}, {disabled: !this.profiles[this.session.editingProfile]})],
-      ["button2URL", new window.ZeresPluginLibrary.Settings.Textbox("Button 2 URL", "URL for button.", this.profiles[this.session.editingProfile]?.button2URL || "", val => {this.profiles[this.session.editingProfile].button2URL = val;}, {disabled: !this.profiles[this.session.editingProfile]})]
+      ["button2URL", new window.ZeresPluginLibrary.Settings.Textbox("Button 2 URL", "URL for button.", this.profiles[this.session.editingProfile]?.button2URL || "", val => {this.profiles[this.session.editingProfile].button2URL = val?.trim?.();}, {disabled: !this.profiles[this.session.editingProfile]})]
     ]);
     const reloadEditProfileInputFields = () => {
       for (const [key, profileInput] of profileInputs.entries()) {
@@ -4176,7 +4189,7 @@ class AutoStartRichPresence {
       activeProfileDropdown,
       rpcInjectionSwitch,
       newProfileButton
-		);
+    );
     reloadRPCConfigGroup = () => {
       rpcConfigGroup.group.children[1].textContent = "";
       activeProfileDropdown = createActiveProfileDropdown();
