@@ -5,9 +5,9 @@
  * @author Lucario ☉ ∝ x²#7902
  * @authorId 438469378418409483
  * @description Auto starts Rich Presence with configurable settings.
- * Required dependency: ZeresPluginLibrary: https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js (Ctrl + S to download)
+ * Required dependency: [ZeresPluginLibrary](https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js) (Ctrl + S to download)
  *
- * Check the website for troubleshooting/FAQs: https://github.com/Mega-Mewthree/BetterDiscordPlugins/tree/master/Plugins/AutoStartRichPresence#troubleshooting before requesting support.
+ * Check the website for [troubleshooting/FAQs](https://github.com/Mega-Mewthree/BetterDiscordPlugins/tree/master/Plugins/AutoStartRichPresence#troubleshooting) before requesting support.
  * DM the author or create an issue for support.
  *
  * @updateUrl https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Plugins/AutoStartRichPresence/AutoStartRichPresence.plugin.js
