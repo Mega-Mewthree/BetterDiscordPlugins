@@ -1,11 +1,10 @@
 /**
  * @name AutoStartRichPresence
- * @version 2.0.3
+ * @version 2.0.4
  *
  * @author Lucario ☉ ∝ x²#7902
  * @authorId 438469378418409483
  * @description Auto starts Rich Presence with configurable settings.
- * Required dependency: [ZeresPluginLibrary](https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js) (Ctrl + S to download)
  *
  * Check the website for [troubleshooting/FAQs](https://github.com/Mega-Mewthree/BetterDiscordPlugins/tree/master/Plugins/AutoStartRichPresence#troubleshooting) before requesting support.
  * DM the author or create an issue for support.
@@ -45,7 +44,7 @@ SOFTWARE.
 
 const changelog = {
   title: "AutoStartRichPresence Updated",
-  version: "2.0.3",
+  version: "2.0.4",
   changelog: [
     {
       title: "v2.0.0: Rich presence profiles have been added!",
@@ -79,6 +78,13 @@ const changelog = {
         "Button labels are now checked to ensure they are smaller than 32 characters in length.",
         "Button labels that exceed the limit will now cause an error to appear, and the button will simply be removed rather than having the entire rich presence fail.",
         "Some settings that should not have trailing whitespaces are now trimmed on save."
+      ]
+    },
+    {
+      title: "v2.0.4: ZeresPluginLibrary Download Prompt",
+      type: "fixed",
+      items: [
+        "The plugin will now automatically prompt you to download ZeresPluginLibrary if it is not already installed."
       ]
     }
   ]
@@ -3787,15 +3793,23 @@ class AutoStartRichPresence {
     this.initialized = false;
     this.client = null;
   }
-  start() {
-    console.log("Starting AutoStartRichPresence");
+  async start() {
     if (typeof window.ZeresPluginLibrary === "undefined") {
-      BdApi.showToast('AutoStartRichPresence: Please install "ZeresPluginLibrary" and restart this plugin.', {type: "error"});
-    } else {
-      this.initialize();
+      try {
+        await this.askToDownloadZeresPluginLibrary();
+        // Wait for ZeresPluginLibrary to load if it didn't load yet
+        while (typeof window.ZeresPluginLibrary === "undefined") {
+          await this.delay(500);
+        }
+      } catch (e) {
+        console.error(e);
+        return BdApi.showToast('AutoStartRichPresence: "ZeresPluginLibrary" was not downloaded, or the download failed. This plugin cannot start.', {type: "error"});
+      }
     }
+    this.initialize();
   }
   initialize() {
+    console.log("Starting AutoStartRichPresence");
     window.ZeresPluginLibrary?.PluginUpdater?.checkForUpdate?.("AutoStartRichPresence", changelog.version, "https://raw.githubusercontent.com/Mega-Mewthree/BetterDiscordPlugins/master/Plugins/AutoStartRichPresence/AutoStartRichPresence.plugin.js");
     BdApi.showToast("AutoStartRichPresence has started!");
     this.startTime = Date.now();
@@ -4245,6 +4259,36 @@ class AutoStartRichPresence {
     this.profiles = profilesData;
     this.updateProfiles();
     this.updateSettings();
+  }
+  askToDownloadZeresPluginLibrary() {
+    return new Promise((resolve, reject) => {
+      BdApi.showConfirmationModal("Library Missing", `The library plugin needed for ${this.constructor.name} is missing. Please click Download Now to install it.`, {
+        confirmText: "Download Now",
+        cancelText: "Cancel",
+        onConfirm: () => {
+          require("request").get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, response, body) => {
+            if (error) {
+              console.error(error);
+              require("electron").shell.openExternal("https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js");
+              return reject();
+            }
+            try {
+              await new Promise(r => require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0PluginLibrary.plugin.js"), body, r));
+              resolve();
+            } catch (e) {
+              console.error(`${this.constructor.name}: `, e);
+              reject();
+            }
+          });
+        },
+        onCancel: reject
+      });
+    });
+  }
+  delay(ms) {
+    return new Promise(resolve => {
+      setTimeout(resolve, ms);
+    });
   }
 }
 
