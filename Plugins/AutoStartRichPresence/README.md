@@ -2,6 +2,10 @@
 
 Automatically starts a custom Rich Presence application when you start Discord. Now with support for multiple rich presence profiles!
 
+Donate:
+
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/lucariodev)
+
 Setup Tutorial: https://www.youtube.com/watch?v=JIUOreTNj-o
 
 ![Example](https://cdn.discordapp.com/attachments/444699521398865943/459432393598566420/unknown.png)
