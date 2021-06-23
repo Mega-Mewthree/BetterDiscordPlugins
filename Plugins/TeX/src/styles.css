@@ -1,0 +1,29 @@
+.BD-TeX-plugin {
+  --font-size: 1.5em;
+  --image-font-size: 24px;
+  --text-color: rgb(217, 109, 22);
+  color: var(--text-color);
+  background: rgba(0, 0, 0, 0.5);
+  padding: 10px;
+  min-height: calc(var(--font-size) * 1.25);
+}
+.BD-TeX-plugin.BD-TeX-plugin.BD-TeX-plugin .katex.katex.katex {
+  font: normal var(--font-size) KaTeX_Main, Times New Roman, serif !important;
+}
+
+.BD-TeX-plugin.BD-TeX-plugin-image-render {
+  background: none;
+  padding: 2px;
+  width: fit-content;
+  min-height: unset;
+}
+.BD-TeX-plugin.BD-TeX-plugin.BD-TeX-plugin.BD-TeX-plugin-image-render .katex.katex.katex {
+  font: normal var(--image-font-size) KaTeX_Main, Times New Roman, serif !important;
+}
+html .BD-TeX-plugin-image-render {
+  visibility: hidden;
+}
+
+.BD-TeX-plugin-button-icon {
+  fill: currentColor;
+}
