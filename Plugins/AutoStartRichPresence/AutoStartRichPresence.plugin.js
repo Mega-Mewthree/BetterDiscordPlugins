@@ -1,6 +1,6 @@
 /**
  * @name AutoStartRichPresence
- * @version 2.0.4
+ * @version 2.0.5
  *
  * @author Lucario ☉ ∝ x²#7902
  * @authorId 438469378418409483
