@@ -236,12 +236,12 @@ class TeX {
         type: "image/png"
       })
     ];
-    ZeresPluginLibrary.ReactTools.getOwnerInstance(document.querySelector(':-webkit-any([class*=" uploadArea-"], [class^="uploadArea-"])')).promptToUpload(
+    BdApi.findModuleByProps("promptToUpload").promptToUpload(
       fileList,
-      ZeresPluginLibrary.DiscordModules.SelectedChannelStore.getChannelId(),
+      ZeresPluginLibrary.ReactTools.getOwnerInstance(document.querySelector(':-webkit-any([class*=" uploadArea-"], [class^="uploadArea-"])')).props.channel,
       false,
       true
-    );
+  );
   }
   injectButton() {
     const Textarea = ZeresPluginLibrary.DiscordClasses.Textarea;
