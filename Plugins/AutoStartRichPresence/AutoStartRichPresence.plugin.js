@@ -4266,10 +4266,10 @@ class AutoStartRichPresence {
         confirmText: "Download Now",
         cancelText: "Cancel",
         onConfirm: () => {
-          require("request").get("https://rauenzi.github.io/BDPluginLibrary/release/0PluginLibrary.plugin.js", async (error, response, body) => {
+          require("request").get("https://raw.githubusercontent.com/BleedingBD/BDPluginLibrary/master/release/0PluginLibrary.plugin.js", async (error, response, body) => {
             if (error) {
               console.error(error);
-              require("electron").shell.openExternal("https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/rauenzi/BDPluginLibrary/master/release/0PluginLibrary.plugin.js");
+              require("electron").shell.openExternal("https://betterdiscord.net/ghdl?url=https://raw.githubusercontent.com/BleedingBD/BDPluginLibrary/master/release/0PluginLibrary.plugin.js");
               return reject();
             }
             try {
