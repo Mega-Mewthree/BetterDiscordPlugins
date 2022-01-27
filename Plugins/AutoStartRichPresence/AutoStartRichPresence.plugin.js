@@ -1,6 +1,6 @@
 /**
  * @name AutoStartRichPresence
- * @version 2.0.4
+ * @version 2.0.5
  *
  * @author Lucario ☉ ∝ x²#7902
  * @authorId 438469378418409483
@@ -19,7 +19,7 @@
 /*
 MIT License
 
-Copyright (c) 2018-2021 Mega-Mewthree
+Copyright (c) 2018-2022 Mega-Mewthree
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -40,51 +40,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Updated June 19th, 2021.
+// Updated January 26th, 2022.
 
 const changelog = {
   title: "AutoStartRichPresence Updated",
-  version: "2.0.4",
+  version: "2.0.5",
   changelog: [
     {
-      title: "v2.0.0: Rich presence profiles have been added!",
-      type: "added",
-      items: [
-        "You can now create multiple rich presence configurations and switch between them quickly.",
-        "Your settings have been automatically migrated to a new format that is not compatible with older versions.",
-        "Please report any bugs with the new profile system."
-      ]
-    },
-    {
-      title: "v2.0.1: Bug Fixes",
+      title: "v2.0.5: Rich presence works again!",
       type: "fixed",
       items: [
-        "Having no buttons no longer causes an error when not using RPC event injection.",
-        "Switching RPC injection on and off quickly no longer crashes the client."
-      ]
-    },
-    {
-      title: "v2.0.2: Update Checker",
-      type: "fixed",
-      items: [
-        "Added back update check that was too hastily replaced with @updateUrl earlier since @updateUrl does not currently work.",
-        "The previous update check was broken anyway due to using the wrong/old class, so no harm done."
-      ]
-    },
-    {
-      title: "v2.0.3: Button Label Validation",
-      type: "fixed",
-      items: [
-        "Button labels are now checked to ensure they are smaller than 32 characters in length.",
-        "Button labels that exceed the limit will now cause an error to appear, and the button will simply be removed rather than having the entire rich presence fail.",
-        "Some settings that should not have trailing whitespaces are now trimmed on save."
-      ]
-    },
-    {
-      title: "v2.0.4: ZeresPluginLibrary Download Prompt",
-      type: "fixed",
-      items: [
-        "The plugin will now automatically prompt you to download ZeresPluginLibrary if it is not already installed."
+        "Hopefully everything works again now.",
+        "Thank you https://github.com/ninjasan420 for pointing me to how to fix it.",
+        "Sorry for the long wait, I haven't been handling college stress very well."
       ]
     }
   ]
@@ -3990,6 +3958,7 @@ class AutoStartRichPresence {
   }
   buildActivityObject() {
     const activityObject = {
+      isSocketConnected: () => true,
       socket: {
         transport: "ipc",
         id: "1",
