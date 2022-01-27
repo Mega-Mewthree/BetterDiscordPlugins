@@ -1,6 +1,6 @@
 /**
  * @name TeX
- * @version 1.0.0
+ * @version 1.0.1
  *
  * @author Lucario ☉ ∝ x²#7902
  * @authorId 438469378418409483
@@ -47,7 +47,7 @@ SOFTWARE.
 
 "<<<<<JS>>>>>"
 
-const version = "1.0.0";
+const version = "1.0.1";
 
 const css = "<<<<<CSS>>>>>";
 const texIconSVG = "<<<<<TEX_ICON>>>>>";
