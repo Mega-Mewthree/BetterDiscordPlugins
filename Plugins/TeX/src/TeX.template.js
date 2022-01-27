@@ -19,7 +19,7 @@
 /*
 MIT License
 
-Copyright (c) 2021 Mega-Mewthree
+Copyright (c) 2021-2022 Mega-Mewthree
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -40,7 +40,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Created June 22nd, 2021.
+// Updated January 26th, 2022.
+
+// Thanks https://github.com/Viibrant for finding a better way to upload the
+// image that is more resistant to breaking with updates.
 
 "<<<<<JS>>>>>"
 
@@ -236,9 +239,11 @@ class TeX {
         type: "image/png"
       })
     ];
-    ZeresPluginLibrary.ReactTools.getOwnerInstance(document.querySelector(':-webkit-any([class*=" uploadArea-"], [class^="uploadArea-"])')).promptToUpload(
+    BdApi.findModuleByProps("promptToUpload").promptToUpload(
       fileList,
-      ZeresPluginLibrary.DiscordModules.SelectedChannelStore.getChannelId(),
+      ZeresPluginLibrary.DiscordModules.ChannelStore.getChannel(
+      	ZeresPluginLibrary.DiscordModules.SelectedChannelStore.getChannelId()
+      ),
       false,
       true
     );
