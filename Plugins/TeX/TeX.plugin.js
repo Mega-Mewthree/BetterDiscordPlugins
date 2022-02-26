@@ -21564,8 +21564,7 @@ class TeX {
       ZeresPluginLibrary.DiscordModules.ChannelStore.getChannel(
       	ZeresPluginLibrary.DiscordModules.SelectedChannelStore.getChannelId()
       ),
-      false,
-      true
+      0
     );
   }
   injectButton() {
