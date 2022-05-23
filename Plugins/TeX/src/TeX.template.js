@@ -1,6 +1,6 @@
 /**
  * @name TeX
- * @version 1.0.1
+ * @version 1.0.2
  *
  * @author Lucario ☉ ∝ x²#7902
  * @authorId 438469378418409483
@@ -40,14 +40,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Updated January 26th, 2022.
+// Updated March 5th, 2022.
 
 // Thanks https://github.com/Viibrant for finding a better way to upload the
 // image that is more resistant to breaking with updates.
+// Thanks https://github.com/CptDinosaur for the 1.0.2 bugfix
 
 "<<<<<JS>>>>>"
 
-const version = "1.0.1";
+const version = "1.0.2";
 
 const css = "<<<<<CSS>>>>>";
 const texIconSVG = "<<<<<TEX_ICON>>>>>";
@@ -244,8 +245,7 @@ class TeX {
       ZeresPluginLibrary.DiscordModules.ChannelStore.getChannel(
       	ZeresPluginLibrary.DiscordModules.SelectedChannelStore.getChannelId()
       ),
-      false,
-      true
+      0
     );
   }
   injectButton() {
