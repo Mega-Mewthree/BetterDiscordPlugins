@@ -3960,6 +3960,7 @@ class AutoStartRichPresence {
     const activityObject = {
       isSocketConnected: () => true,
       socket: {
+		isSocketConnected: () => true,
         transport: "ipc",
         id: "1",
         version: 1,
