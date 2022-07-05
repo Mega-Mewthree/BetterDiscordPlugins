@@ -1,6 +1,6 @@
 /**
  * @name AutoStartRichPresence
- * @version 2.0.5
+ * @version 2.0.6
  *
  * @author Lucario ☉ ∝ x²#7902
  * @authorId 438469378418409483
@@ -40,19 +40,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Updated January 26th, 2022.
+// Updated July 5th, 2022.
 
 const changelog = {
   title: "AutoStartRichPresence Updated",
-  version: "2.0.5",
+  version: "2.0.6",
   changelog: [
     {
-      title: "v2.0.5: Rich presence works again!",
+      title: "v2.0.6: Use first profile if none was explicitly set to active",
       type: "fixed",
       items: [
-        "Hopefully everything works again now.",
-        "Thank you https://github.com/ninjasan420 for pointing me to how to fix it.",
-        "Sorry for the long wait, I haven't been handling college stress very well."
+        "If you do not have an active profile selected, the first one will be used.",
+        "If you want to switch profiles, you must manually edit the activeProfileID in AutoStartRichPresence.config.json.",
+        "The profile dropdown selector is broken until ZeresPluginLibrary is fixed."
       ]
     }
   ]
@@ -3786,6 +3786,9 @@ class AutoStartRichPresence {
       this.migrateData();
     }
     this.profiles = BdApi.loadData("AutoStartRichPresence", "profiles") || [];
+    if (!this.settings.activeProfileID && this.profiles.length) {
+      this.settings.activeProfileID = 0;
+    }
     this.session = {
       editingProfile: this.settings.activeProfileID || 0,
       // When calling start/stop functions, this prevents crashes
@@ -4099,7 +4102,7 @@ class AutoStartRichPresence {
       }
     };
     const createActiveProfileDropdown = () => {
-      return new window.ZeresPluginLibrary.Settings.Dropdown("Select Active Profile", "", this.settings.activeProfileID, this.profiles.map((p, id) => ({label: p.name, value: id})), val => {this.settings.activeProfileID = val;}, {disabled: !this.profiles.length});
+      return new window.ZeresPluginLibrary.Settings.Dropdown("Select Active Profile", "Switching profiles is currently broken; edit activeProfileID in AutoStartRichPresence.config.json.", this.settings.activeProfileID, this.profiles.map((p, id) => ({label: p.name, value: id})), val => {this.settings.activeProfileID = val;}, {disabled: !this.profiles.length});
     };
     const createRPCInjectionSwitch = () => {
       return new window.ZeresPluginLibrary.Settings.Switch("RPC Event Injection", "Bypasses the use of IPC and hopefully prevents other programs from using their own Rich Presences. Some errors may silently fail, so if something is not working, turn this switch off.", this.settings.rpcEventInjection, val => {
@@ -4137,6 +4140,9 @@ class AutoStartRichPresence {
       this.profiles.push({
         name: "New Profile"
       });
+      if (this.profiles.length === 1) {
+        this.settings.activeProfileID = 0;
+      }
       this.session.editingProfile = this.profiles.length - 1;
       this.updateProfiles();
       reloadRPCConfigGroup();
