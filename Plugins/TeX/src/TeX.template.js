@@ -153,6 +153,13 @@ class TeX {
       await this.delay(500);
     }
     this.injectButton();
+    this.uploader = BdApi.Webpack.getByKeys('instantBatchUpload');
+    this.cloudUploader = BdApi.Webpack.getModule(module => {
+      return Object.values(module).some((value) => {
+        if (typeof value !== 'object' || value === null) return false;
+        return value.NOT_STARTED && value.UPLOADING && module.n !== undefined;
+      });
+    });
   }
   stop() {
     this.texButton?.remove?.();
@@ -226,18 +233,8 @@ class TeX {
     });
   }
   attachImage(blob) {
-    const uploader = BdApi.Webpack.getByKeys('instantBatchUpload');
-    const cloudUploader = BdApi.Webpack.getModule(module => {
-      return Object.values(module).some((value) => {
-        if (typeof value !== 'object' || value === null) return false
-        const curValue = value
-        return curValue.NOT_STARTED !== undefined &&
-                curValue.UPLOADING !== undefined &&
-                module.n !== undefined
-      });
-    });
     const channelId = ZeresPluginLibrary.DiscordModules.SelectedChannelStore.getChannelId();
-    const upload = new cloudUploader.n(
+    const upload = new this.cloudUploader.n(
       { file: new File([blob], `tex-output-${Date.now()}.png`), platform: 1 },
       channelId
     );
@@ -247,7 +244,7 @@ class TeX {
       draftType: 0,
       parsedMessage: { content: '', invalidEmojis: [], tts: false, channel_id: channelId }
     }
-    uploader.uploadFiles(uploadOptions);
+    this.uploader.uploadFiles(uploadOptions);
   }
   injectButton() {
     const Textarea = ZeresPluginLibrary.DiscordClasses.Textarea;
