@@ -21491,7 +21491,7 @@ class TeX {
         onUpdate: val => this.texInput = val
       }),
       {
-        confirmText: "Attach",
+        confirmText: "Send",
         onConfirm: async () => {
           if (this.texInput.length) {
             const blob = await this.generateTeXImage();
@@ -21546,18 +21546,29 @@ class TeX {
     });
   }
   attachImage(blob) {
-    const fileList = [
-      new File([blob], `tex-output-${Date.now()}.png`, {
-        type: "image/png"
-      })
-    ];
-    BdApi.findModuleByProps("promptToUpload").promptToUpload(
-      fileList,
-      ZeresPluginLibrary.DiscordModules.ChannelStore.getChannel(
-        ZeresPluginLibrary.DiscordModules.SelectedChannelStore.getChannelId()
-      ),
-      0
+    const uploader = BdApi.Webpack.getByKeys('instantBatchUpload');
+    const cloudUploader = BdApi.Webpack.getModule(module => {
+      return Object.values(module).some((value) => {
+        if (typeof value !== 'object' || value === null) return false
+        const curValue = value
+
+        return curValue.NOT_STARTED !== undefined &&
+                curValue.UPLOADING !== undefined &&
+                module.n !== undefined
+      });
+    });
+    const channelId = ZeresPluginLibrary.DiscordModules.SelectedChannelStore.getChannelId();
+    const upload = new cloudUploader.n(
+      { file: new File([blob], `tex-output-${Date.now()}.png`), platform: 1 },
+      channelId
     );
+    const uploadOptions = {
+      channelId: channelId,
+      uploads: [upload],
+      draftType: 0,
+      parsedMessage: { content: '', invalidEmojis: [], tts: false, channel_id: channelId }
+    }
+    uploader.uploadFiles(uploadOptions);
   }
   injectButton() {
     const Textarea = ZeresPluginLibrary.DiscordClasses.Textarea;
