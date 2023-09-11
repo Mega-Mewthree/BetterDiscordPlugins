@@ -21473,13 +21473,7 @@ class TeX {
       await this.delay(500);
     }
     this.injectButton();
-    this.uploader = BdApi.Webpack.getByKeys('instantBatchUpload');
-    this.cloudUploader = BdApi.Webpack.getModule(module => {
-      return Object.values(module).some((value) => {
-        if (typeof value !== 'object' || value === null) return false;
-        return value.NOT_STARTED && value.UPLOADING && module.n !== undefined;
-      });
-    });
+    this.attachments = BdApi.Webpack.getByKeys('addFiles');
   }
   stop() {
     this.texButton?.remove?.();
@@ -21498,7 +21492,7 @@ class TeX {
         onUpdate: val => this.texInput = val
       }),
       {
-        confirmText: "Send",
+        confirmText: "Attach",
         onConfirm: async () => {
           if (this.texInput.length) {
             const blob = await this.generateTeXImage();
@@ -21554,17 +21548,13 @@ class TeX {
   }
   attachImage(blob) {
     const channelId = ZeresPluginLibrary.DiscordModules.SelectedChannelStore.getChannelId();
-    const upload = new this.cloudUploader.n(
-      { file: new File([blob], `tex-output-${Date.now()}.png`), platform: 1 },
-      channelId
-    );
-    const uploadOptions = {
+    const file = new File([blob], `tex-output-${Date.now()}.png`, {type: 'image/png'});
+    this.attachments.addFiles({
       channelId: channelId,
-      uploads: [upload],
       draftType: 0,
-      parsedMessage: { content: '', invalidEmojis: [], tts: false, channel_id: channelId }
-    }
-    this.uploader.uploadFiles(uploadOptions);
+      files: [{file: file, isClip: false, isThumbnail: false, platform: 1}],
+      showLargeMessageDialog: false
+    });
   }
   injectButton() {
     const Textarea = ZeresPluginLibrary.DiscordClasses.Textarea;
