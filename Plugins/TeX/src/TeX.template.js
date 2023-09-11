@@ -153,7 +153,7 @@ class TeX {
       await this.delay(500);
     }
     this.injectButton();
-    this.attachmentManager = BdApi.Webpack.getByKeys('addFiles');
+    this.attachments = BdApi.Webpack.getByKeys('addFiles');
   }
   stop() {
     this.texButton?.remove?.();
@@ -229,7 +229,7 @@ class TeX {
   attachImage(blob) {
     const channelId = ZeresPluginLibrary.DiscordModules.SelectedChannelStore.getChannelId();
     const file = new File([blob], `tex-output-${Date.now()}.png`, {type: 'image/png'});
-    this.attachmentManager.addFiles({
+    this.attachments.addFiles({
       channelId: channelId,
       draftType: 0,
       files: [{file: file, isClip: false, isThumbnail: false, platform: 1}],
