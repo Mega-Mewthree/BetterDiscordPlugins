@@ -21551,7 +21551,6 @@ class TeX {
       return Object.values(module).some((value) => {
         if (typeof value !== 'object' || value === null) return false
         const curValue = value
-
         return curValue.NOT_STARTED !== undefined &&
                 curValue.UPLOADING !== undefined &&
                 module.n !== undefined
