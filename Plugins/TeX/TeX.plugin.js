@@ -21419,7 +21419,7 @@ class TeXModal extends React.Component {
 
 function createTeXButton({ onClick }) {
   const { button, contents, grow } = ZeresPluginLibrary.WebpackModules.find(m => m.button && m.grow);
-  const discordButton = ZeresPluginLibrary.WebpackModules.getByProps("icon", "hoverScale");
+  const discordButton = BdApi.Webpack.getByKeys("grow", "colorBrand");
   const texButton = document.createElement("button");
   texButton.classList.add(button, grow, "BD-TeX-plugin-button");
   const div = document.createElement("div");
