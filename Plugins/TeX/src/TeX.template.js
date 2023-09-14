@@ -55,62 +55,53 @@ const texIconSVG = "<<<<<TEX_ICON>>>>>";
 
 const React = BdApi.React;
 
-class TeXModal extends React.PureComponent {
+class TeXModal extends React.Component {
   constructor(props) {
     super(props);
-    this.textboxRef = React.createRef();
-    this.katexRef = React.createRef();
+    this.textboxRef = document.createElement("div");
+    this.katexRef = document.createElement("div");
     this.state = {
       texInput: typeof props.initialValue === "string" ? props.initialValue : ""
     };
   }
   componentDidMount() {
-    this.disableSpellcheck();
-    katex.render(this.state.texInput, this.katexRef.current, {
+    katex.render(this.state.texInput, this.katexRef, {
       throwOnError: false,
       strict: false,
       trust: true
     });
   }
-  componentDidUpdate() {
-    this.disableSpellcheck();
-  }
-  disableSpellcheck() {
-    const textbox = BdApi.ReactDOM.findDOMNode(this.textboxRef.current).querySelector("textarea");
-    textbox.setAttribute("autocomplete", "off");
-    textbox.setAttribute("autocorrect", "off");
-    textbox.setAttribute("autocapitalize", "off");
-    textbox.setAttribute("spellcheck", "false");
-  }
   render() {
-    return React.createElement("div", null, React.createElement(BdApi.findModuleByDisplayName("TextArea"), {
-      ref: this.textboxRef,
-      value: this.state.texInput,
+    return React.createElement("div", null, React.createElement("TextArea", {
+      dangerouslySetInnerHTML: { __html: this.state.texInput },
       rows: 8,
-      onChange: val => {
+      cols: 55,
+      style: { backgroundColor: "#0004", color: "#d96d16", maxWidth: 400, minWidth: 400, minHeight: 50 },
+      autoComplete: "off",
+      spellCheck: "off",
+      onKeyUp: val => {
         this.setState({
-          texInput: val
+          texInput: val.target.value
         });
-        katex.render(val, this.katexRef.current, {
+        katex.render(val.target.value, this.katexRef, {
           throwOnError: false,
           strict: false,
           trust: true
         });
-        this.props?.onUpdate?.(val);
-      }
+        this.props.onUpdate(val.target.value);
+      },
     }), React.createElement("div", {
       className: "BD-TeX-plugin",
-      ref: this.katexRef
+      dangerouslySetInnerHTML: { __html: this.katexRef.innerHTML }
     }));
   }
 }
 
-function createTeXButton({onClick}) {
-  const ButtonData = ZeresPluginLibrary.DiscordModules.ButtonData;
-  const {button, contents, grow} = ZeresPluginLibrary.WebpackModules.find(m => m.button && m.grow);
-  const discordButton = ZeresPluginLibrary.WebpackModules.getByProps("icon", "hoverScale");
+function createTeXButton({ onClick }) {
+  const { button, contents, grow } = ZeresPluginLibrary.WebpackModules.find(m => m.button && m.grow);
+  const discordButton = BdApi.Webpack.getByKeys("grow", "colorBrand");
   const texButton = document.createElement("button");
-  texButton.classList.add(ButtonData.ButtonColors.BRAND, ButtonData.ButtonLooks.BLANK, button, grow, "BD-TeX-plugin-button");
+  texButton.classList.add(button, grow, "BD-TeX-plugin-button");
   const div = document.createElement("div");
   div.classList.add(ZeresPluginLibrary.DiscordClasses.Textarea.button, discordButton.button, contents);
   const innerDiv = document.createElement("div");
@@ -145,13 +136,10 @@ class TeX {
         }
       } catch (e) {
         console.error(`${this.constructor.name}: `, e);
-        return BdApi.showToast(`${this.constructor.name}: "ZeresPluginLibrary" was not downloaded, or the download failed. This plugin cannot start.`, {type: "error"});
+        return BdApi.showToast(`${this.constructor.name}: "ZeresPluginLibrary" was not downloaded, or the download failed. This plugin cannot start.`, { type: "error" });
       }
     }
     BdApi.injectCSS(this.constructor.name, css);
-    ZeresPluginLibrary.Patcher.after(this.constructor.name, ZeresPluginLibrary.WebpackModules.getByProps("instantBatchUpload"), "upload", () => {
-      this.texInput = "";
-    });
     this.texButton = createTeXButton({
       onClick: () => this.showTeXModal()
     });
@@ -162,6 +150,7 @@ class TeX {
       await this.delay(500);
     }
     this.injectButton();
+    this.attachments = BdApi.Webpack.getByKeys('addFiles');
   }
   stop() {
     this.texButton?.remove?.();
@@ -185,6 +174,7 @@ class TeX {
           if (this.texInput.length) {
             const blob = await this.generateTeXImage();
             this.attachImage(blob);
+            this.texInput = "";
           }
         }
       }
@@ -235,18 +225,14 @@ class TeX {
     });
   }
   attachImage(blob) {
-    const fileList = [
-      new File([blob], `tex-output-${Date.now()}.png`, {
-        type: "image/png"
-      })
-    ];
-    BdApi.findModuleByProps("promptToUpload").promptToUpload(
-      fileList,
-      ZeresPluginLibrary.DiscordModules.ChannelStore.getChannel(
-      	ZeresPluginLibrary.DiscordModules.SelectedChannelStore.getChannelId()
-      ),
-      0
-    );
+    const channelId = ZeresPluginLibrary.DiscordModules.SelectedChannelStore.getChannelId();
+    const file = new File([blob], `tex-output-${Date.now()}.png`, {type: 'image/png'});
+    this.attachments.addFiles({
+      channelId: channelId,
+      draftType: 0,
+      files: [{file: file, isClip: false, isThumbnail: false, platform: 1}],
+      showLargeMessageDialog: false
+    });
   }
   injectButton() {
     const Textarea = ZeresPluginLibrary.DiscordClasses.Textarea;
