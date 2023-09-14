@@ -140,9 +140,6 @@ class TeX {
       }
     }
     BdApi.injectCSS(this.constructor.name, css);
-    ZeresPluginLibrary.Patcher.after(this.constructor.name, ZeresPluginLibrary.WebpackModules.getByProps("instantBatchUpload"), "upload", () => {
-      this.texInput = "";
-    });
     this.texButton = createTeXButton({
       onClick: () => this.showTeXModal()
     });
@@ -177,6 +174,7 @@ class TeX {
           if (this.texInput.length) {
             const blob = await this.generateTeXImage();
             this.attachImage(blob);
+            this.texInput = "";
           }
         }
       }
